@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import multer from 'multer';
 import * as store from './store.js';
 import * as assetStore from './assetStore.js';
+import * as aiService from './aiService.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -158,6 +159,37 @@ app.delete('/api/assets/:id', (req, res) => {
   if (!deleted) return res.status(404).json({ error: 'Asset not found' });
   res.status(204).send();
 });
+
+// API: Generate scenes from script using AI
+app.post('/api/projects/:id/generate-scenes', async (req, res) => {
+  try {
+    const { script } = req.body;
+
+    if (!script || script.trim().length === 0) {
+      return res.status(400).json({ error: 'Script content is required' });
+    }
+
+    // Fetch API key from settings
+    const settings = store.getApiSettings();
+    if (!settings.hasKey) {
+      return res.status(400).json({
+        error: 'Google AI API key not configured. Please add your API key in settings.'
+      });
+    }
+
+    // Generate scenes using AI
+    const scenes = await aiService.generateScenes(script, settings.googleAiApiKey);
+
+    // Return generated scenes
+    res.json({ scenes });
+  } catch (err) {
+    console.error('AI generation error:', err);
+    res.status(500).json({
+      error: err.message || 'Failed to generate scenes. Please try again.'
+    });
+  }
+});
+
 
 // API: Get API settings (returns masked key for security)
 app.get('/api/settings/api', (req, res) => {

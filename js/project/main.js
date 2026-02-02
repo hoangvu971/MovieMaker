@@ -205,38 +205,49 @@ async function handleFiles(fileList) {
 }
 
 // --- Start generation (script → loading → breakdown) ---
-function startGeneration() {
+async function startGeneration() {
   const inputOnboarding = document.getElementById('input-onboarding');
   const inputScript = document.getElementById('input-project-script');
   const viewScript = document.getElementById('view-script');
   const viewLoading = document.getElementById('view-loading');
+
   if (inputOnboarding && inputScript) {
-    inputScript.value = inputOnboarding.value || 'Enter your story idea here...';
+    inputScript.value = inputOnboarding.value || 'Enter your script here...';
   }
+
   if (viewScript) viewScript.classList.add('hidden');
   if (viewLoading) viewLoading.classList.remove('hidden');
-  setTimeout(async () => {
-    // 1. Populate with dummy scenes (No dummy assets)
-    const dummyScenes = [
-      { id: 'scene-' + Date.now() + '-1', order: 0, content: "EXT. MARS - DAY - A vast red landscape stretching to the horizon." },
-      { id: 'scene-' + Date.now() + '-2', order: 1, content: "INT. RESEARCH BASE - NIGHT - Dr. Aris peers into the holographic display." },
-      { id: 'scene-' + Date.now() + '-3', order: 2, content: "EXT. VALLES MARINERIS - DUSK - A drone glides through the canyons." }
-    ];
 
-    const id = getProjectIdFromUrl();
-    if (id) {
-      try {
-        await window.StoryboardAPI.updateProject(id, { screenplayScenes: dummyScenes });
-        const project = await window.StoryboardAPI.getProject(id);
-        applyProject(project); // Refresh UI with new scenes
-      } catch (e) {
-        console.error("Failed to save dummy scenes", e);
-      }
-    }
+  const id = getProjectIdFromUrl();
+  if (!id) return;
+
+  try {
+    const script = inputScript ? inputScript.value : '';
+
+    // Call AI to generate scenes
+    const response = await window.StoryboardAPI.generateScenes(id, script);
+    const aiScenes = response.scenes || [];
+
+    // Add IDs to scenes
+    const scenesWithIds = aiScenes.map((scene, index) => ({
+      id: 'scene-' + Date.now() + '-' + index,
+      order: scene.order !== undefined ? scene.order : index,
+      content: scene.content
+    }));
+
+    // Save scenes to database
+    await window.StoryboardAPI.updateProject(id, { screenplayScenes: scenesWithIds });
+    const project = await window.StoryboardAPI.getProject(id);
+    applyProject(project);
 
     if (viewLoading) viewLoading.classList.add('hidden');
     switchProjectTab('breakdown');
-  }, 2000);
+  } catch (e) {
+    console.error("Failed to generate scenes", e);
+    if (viewLoading) viewLoading.classList.add('hidden');
+    if (viewScript) viewScript.classList.remove('hidden');
+    alert(e.message || 'Failed to generate scenes. Please check your API key and try again.');
+  }
 }
 
 // --- Modify script & Re-generate ---
@@ -250,34 +261,37 @@ async function handleModifyScript() {
   viewStoryIdea.classList.add('hidden');
   viewLoading.classList.remove('hidden');
 
+  const id = getProjectIdFromUrl();
+  if (!id) return;
+
   try {
-    // 2. Save the updated story idea
+    // 2. Save the updated script
     await saveProjectNow();
 
-    // 3. Simulate generation delay
-    setTimeout(async () => {
-      // populate dummy scenes
-      const dummyScenes = [
-        { id: 'scene-' + Date.now() + '-1', order: 0, content: "SCENE 1: UPDATED - The story continues with new energy." },
-        { id: 'scene-' + Date.now() + '-2', order: 1, content: "SCENE 2: REVEAL - An unexpected discovery changes everything." },
-        { id: 'scene-' + Date.now() + '-3', order: 2, content: "SCENE 3: CLIFFHANGER - The journey is just beginning." }
-      ];
+    // 3. Call AI to generate scenes
+    const script = inputScript.value;
+    const response = await window.StoryboardAPI.generateScenes(id, script);
+    const aiScenes = response.scenes || [];
 
-      const id = getProjectIdFromUrl();
-      if (id) {
-        await window.StoryboardAPI.updateProject(id, { screenplayScenes: dummyScenes });
-        const project = await window.StoryboardAPI.getProject(id);
-        applyProject(project);
-      }
+    // Add IDs to scenes
+    const scenesWithIds = aiScenes.map((scene, index) => ({
+      id: 'scene-' + Date.now() + '-' + index,
+      order: scene.order !== undefined ? scene.order : index,
+      content: scene.content
+    }));
 
-      viewLoading.classList.add('hidden');
-      switchProjectTab('breakdown');
-    }, 2000);
+    // Save scenes to database
+    await window.StoryboardAPI.updateProject(id, { screenplayScenes: scenesWithIds });
+    const project = await window.StoryboardAPI.getProject(id);
+    applyProject(project);
+
+    viewLoading.classList.add('hidden');
+    switchProjectTab('breakdown');
   } catch (e) {
     viewLoading.classList.add('hidden');
     viewStoryIdea.classList.remove('hidden');
     console.error(e);
-    alert('Failed to update project. Please try again.');
+    alert(e.message || 'Failed to generate scenes. Please check your API key and try again.');
   }
 }
 

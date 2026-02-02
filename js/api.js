@@ -92,6 +92,19 @@ export async function getApiKey() {
   return res.json();
 }
 
+export async function generateScenes(projectId, script) {
+  const res = await fetch(apiUrl('/api/projects/' + encodeURIComponent(projectId) + '/generate-scenes'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ script }),
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || 'Failed to generate scenes');
+  }
+  return res.json();
+}
+
 export const StoryboardAPI = {
   listProjects,
   getProject,
@@ -103,6 +116,7 @@ export const StoryboardAPI = {
   getApiSettings,
   saveApiSettings,
   getApiKey,
+  generateScenes,
 };
 
 // Also keep global for easy console debugging or old scripts

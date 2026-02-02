@@ -4,36 +4,27 @@
 
 export function switchSidebar(mode) {
   const assetsPanel = document.getElementById('panel-assets');
-  const promptPanel = document.getElementById('panel-prompt');
   const apiPanel = document.getElementById('panel-api');
   const btnAssets = document.getElementById('btn-assets');
-  const btnPrompt = document.getElementById('btn-prompt');
   const btnApi = document.getElementById('btn-api');
-  
-  if (!assetsPanel || !promptPanel || !apiPanel || !btnAssets || !btnPrompt || !btnApi) return;
-  
+
+  if (!assetsPanel || !apiPanel || !btnAssets || !btnApi) return;
+
   // Hide all panels
   assetsPanel.classList.add('hidden');
-  promptPanel.classList.add('hidden');
   apiPanel.classList.add('hidden');
-  
+
   // Reset all buttons to inactive
   btnAssets.classList.remove('sidebar-btn-active');
   btnAssets.classList.add('sidebar-btn');
-  btnPrompt.classList.remove('sidebar-btn-active');
-  btnPrompt.classList.add('sidebar-btn');
   btnApi.classList.remove('sidebar-btn-active');
   btnApi.classList.add('sidebar-btn');
-  
+
   // Show selected panel and activate button
   if (mode === 'assets') {
     assetsPanel.classList.remove('hidden');
     btnAssets.classList.remove('sidebar-btn');
     btnAssets.classList.add('sidebar-btn-active');
-  } else if (mode === 'prompt') {
-    promptPanel.classList.remove('hidden');
-    btnPrompt.classList.remove('sidebar-btn');
-    btnPrompt.classList.add('sidebar-btn-active');
   } else if (mode === 'api') {
     apiPanel.classList.remove('hidden');
     btnApi.classList.remove('sidebar-btn');

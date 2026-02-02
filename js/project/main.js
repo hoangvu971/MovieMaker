@@ -313,7 +313,6 @@ function bindActionButtons() {
     if (!el) return;
     const action = el.dataset.action;
     if (action === 'sidebar:assets') switchSidebar('assets');
-    else if (action === 'sidebar:prompt') switchSidebar('prompt');
     else if (action === 'sidebar:api') switchSidebar('api');
     else if (action === 'tab:idea') switchProjectTab('idea');
     else if (action === 'tab:breakdown') switchProjectTab('breakdown');
@@ -378,10 +377,10 @@ function initApiPanel() {
     if (!statusDiv || !statusIcon || !statusText) return;
     statusDiv.classList.remove('hidden');
     statusText.textContent = message;
-    
+
     const container = statusDiv.querySelector('div');
     container.className = 'flex items-center gap-2 p-2 rounded-lg text-xs';
-    
+
     if (type === 'success') {
       container.classList.add('bg-green-500/10', 'text-green-400');
       statusIcon.setAttribute('icon', 'solar:check-circle-linear');
@@ -392,7 +391,7 @@ function initApiPanel() {
       container.classList.add('bg-cyan-500/10', 'text-cyan-400');
       statusIcon.setAttribute('icon', 'line-md:loading-loop');
     }
-    
+
     // Auto-hide after 3 seconds for success
     if (type === 'success') {
       setTimeout(() => statusDiv.classList.add('hidden'), 3000);
@@ -402,7 +401,7 @@ function initApiPanel() {
   // Save API key
   saveBtn.addEventListener('click', async () => {
     const apiKey = apiKeyInput.value.trim();
-    
+
     if (!apiKey) {
       showStatus('error', 'Please enter an API key');
       return;

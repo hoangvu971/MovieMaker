@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <%- include('partials/head', { title: 'Project Editor' , includeSortable: true }) %>
+</head>
+
+<body
+    class="bg-black text-zinc-300 h-screen flex flex-col overflow-hidden selection:bg-cyan-500/30 selection:text-cyan-200">
+
+    <%- include('partials/header_editor') %>
+
+        <div class="flex flex-1 overflow-hidden">
+            <%- include('partials/editor/sidebar_nav') %>
+                <%- include('partials/editor/sidebar_panel') %>
+
+                    <main class="flex-1 bg-zinc-950 relative overflow-hidden flex flex-col">
+                        <!-- Background Elements -->
+                        <div class="absolute inset-0 z-0 opacity-30 pointer-events-none">
+                            <div
+                                class="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[100px]">
+                            </div>
+                            <div
+                                class="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px]">
+                            </div>
+                        </div>
+
+                        <!-- Main Scrolling Area -->
+                        <div id="main-scroll-area" class="relative z-10 flex-1 overflow-y-auto scroll-smooth">
+                            <%- include('partials/editor/view_script') %>
+                                <%- include('partials/editor/view_loading') %>
+                                    <%- include('partials/editor/view_story_idea') %>
+                                        <%- include('partials/editor/view_screenplay') %>
+                        </div>
+
+                        <div class="mt-8 flex justify-center gap-6 text-sm text-zinc-500 pb-8">
+                            <button class="hover:text-zinc-300 transition-colors">Start with a template</button>
+                            <span class="w-1 h-1 rounded-full bg-zinc-700 self-center"></span>
+                            <button class="hover:text-zinc-300 transition-colors">Import existing script</button>
+                        </div>
+                    </main>
+        </div>
+
+        <script type="module" src="/js/project/main.js"></script>
+</body>
+
+</html>

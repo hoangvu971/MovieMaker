@@ -1,0 +1,20 @@
+<div id="view-loading" class="hidden min-h-full flex flex-col items-center justify-center p-6">
+    <div class="text-center space-y-4">
+        <div class="relative w-16 h-16 mx-auto">
+            <div class="absolute inset-0 rounded-full border-4 border-zinc-800"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-cyan-500 border-t-transparent animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <iconify-icon icon="solar:magic-stick-3-linear" class="text-white animate-pulse"
+                    width="24"></iconify-icon>
+            </div>
+        </div>
+        <div>
+            <h3 class="text-xl font-medium text-white mb-2">Generating Screenplay</h3>
+            <p class="text-zinc-500 text-sm animate-pulse">Analyzing scene structure and camera angles...</p>
+        </div>
+        <!-- Fake progress visual -->
+        <div class="w-64 h-1 bg-zinc-800 rounded-full overflow-hidden mx-auto mt-6">
+            <div class="h-full bg-cyan-500 animate-[progress_2s_ease-in-out_infinite] w-1/3 rounded-full"></div>
+        </div>
+    </div>
+</div>

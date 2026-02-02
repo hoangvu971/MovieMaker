@@ -1,0 +1,25 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#09090b">
+<title><%= title %> - Storyboarder</title>
+
+<!-- Preconnect to external resources for faster font loading -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Critical inline styles: renders immediately while Tailwind CSS loads -->
+<style>
+    html, body {
+        background-color: #09090b;
+        color: #d4d4d8;
+        font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+        min-height: 100vh;
+    }
+    /* Prevent layout shift for common elements */
+    .bg-zinc-950, .bg-black { background-color: #09090b; }
+    .bg-zinc-900 { background-color: #18181b; }
+    .text-zinc-300 { color: #d4d4d8; }
+    .text-white { color: #fff; }
+    .border-zinc-800 { border-color: #27272a; }
+</style>

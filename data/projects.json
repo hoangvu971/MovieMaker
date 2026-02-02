@@ -1,0 +1,60 @@
+[
+  {
+    "id": "d7d86776-b44f-4e43-aaee-17e85495e849",
+    "name": "Untitled Project",
+    "storyIdea": "",
+    "screenplayScenes": [],
+    "systemPrompt": "",
+    "assets": [],
+    "shotCount": 0,
+    "status": "draft",
+    "createdAt": "2026-02-01T04:17:02.211Z",
+    "updatedAt": "2026-02-01T04:17:02.211Z"
+  },
+  {
+    "id": "7cfb48c0-5bc9-4302-9641-edaf12207e7d",
+    "name": "Untitled Project",
+    "storyIdea": "",
+    "screenplayScenes": [],
+    "systemPrompt": "",
+    "assets": [],
+    "shotCount": 0,
+    "status": "draft",
+    "createdAt": "2026-02-01T04:19:22.564Z",
+    "updatedAt": "2026-02-01T04:19:22.564Z"
+  },
+  {
+    "id": "63fec24a-225f-485a-93e9-de3b79143caa",
+    "name": "Untitled Project",
+    "storyIdea": "Enter your story idea here...",
+    "screenplayScenes": [
+      {
+        "content": "A slow aerial drone shot glides over the rust-red cliffs of Valles Marineris at dawn, the canyon walls stretching to the hazy horizon under a thin salmon sky. The only sign of human presence is a lone pressurized rover parked near the fractured lip of a side ravine."
+      },
+      {
+        "content": "Mid-morning sunlight filters weakly through the thin atmosphere as Sarah stands beside a tripod-mounted seismograph and ground-penetrating radar unit at the canyon edge. \"Routine density scan, sector 12-G,\" she narrates for the camera attached to her chest. Suddenly the tablet pings, lines of bio-signal data spiking in unnatural, rhythmic waves."
+      },
+      {
+        "content": "Inside the rover, Sarah pulls off her helmet, the seal hissing. She looks at the data log again. \"That's not geological,\" she whispers, her breath fogging the small viewport. \"That's metabolic.\""
+      }
+    ],
+    "systemPrompt": "",
+    "assets": [],
+    "shotCount": 3,
+    "status": "draft",
+    "createdAt": "2026-02-01T04:20:42.712Z",
+    "updatedAt": "2026-02-01T04:20:48.894Z"
+  },
+  {
+    "id": "9ad4acf5-766f-43f4-9d6d-f7e1c11aa5a3",
+    "name": "Untitled Project",
+    "storyIdea": "",
+    "screenplayScenes": [],
+    "systemPrompt": "",
+    "assets": [],
+    "shotCount": 0,
+    "status": "draft",
+    "createdAt": "2026-02-01T04:22:38.340Z",
+    "updatedAt": "2026-02-01T04:22:38.340Z"
+  }
+]

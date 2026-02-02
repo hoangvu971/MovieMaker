@@ -1,0 +1,24 @@
+<aside class="w-16 bg-zinc-950 border-r border-zinc-900 flex flex-col items-center py-4 gap-4 shrink-0 z-20">
+    <button type="button" id="btn-assets" data-action="sidebar:assets"
+        class="sidebar-btn-active w-full h-14 flex flex-col items-center justify-center gap-1 transition-all group relative">
+        <iconify-icon icon="solar:gallery-wide-linear" width="24" height="24"
+            class="group-hover:scale-110 transition-transform"></iconify-icon>
+        <span class="text-[10px] font-medium">Assets</span>
+    </button>
+    <button type="button" id="btn-prompt" data-action="sidebar:prompt"
+        class="sidebar-btn w-full h-14 flex flex-col items-center justify-center gap-1 transition-all group relative">
+        <iconify-icon icon="solar:settings-minimalistic-linear" width="24" height="24"
+            class="group-hover:scale-110 transition-transform"></iconify-icon>
+        <span class="text-[10px] font-medium text-center leading-tight px-1">Prompt</span>
+    </button>
+    
+    <!-- Spacer to push API button to bottom -->
+    <div class="flex-1"></div>
+    
+    <button type="button" id="btn-api" data-action="sidebar:api"
+        class="sidebar-btn w-full h-14 flex flex-col items-center justify-center gap-1 transition-all group relative">
+        <iconify-icon icon="solar:key-linear" width="24" height="24"
+            class="group-hover:scale-110 transition-transform"></iconify-icon>
+        <span class="text-[10px] font-medium">API</span>
+    </button>
+</aside>

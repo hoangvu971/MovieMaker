@@ -1,0 +1,44 @@
+<div id="view-screenplay" class="hidden min-h-full p-8 lg:p-12 max-w-5xl mx-auto">
+    <!-- Screenplay Steps Header -->
+    <nav class="flex items-center justify-between border-b border-zinc-800 pb-4 mb-8">
+        <div class="flex items-center gap-8">
+            <button type="button" data-action="tab:idea"
+                class="text-sm font-medium text-zinc-500 hover:text-zinc-300 transition-colors">1. Story Idea</button>
+            <button class="text-sm font-medium text-white border-b-2 border-white pb-4 -mb-4.5">2. Breakdown</button>
+            <button class="text-sm font-medium text-zinc-500 hover:text-zinc-300 transition-colors">3.
+                Storyboard</button>
+        </div>
+    </nav>
+
+    <header class="flex items-start justify-between mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2 flex items-center gap-2">
+                Review Breakdown
+                <button class="text-zinc-500 hover:text-white transition-colors">
+                    <iconify-icon icon="solar:pen-linear" width="20"></iconify-icon>
+                </button>
+            </h1>
+            <p class="text-zinc-400 max-w-2xl leading-relaxed">
+                Review and refine your scene breakdown further. Use simple headlines to structure your scenes,
+                characters, and dialogue before moving on to make sure your storyboard reflects your vision.
+            </p>
+        </div>
+        <button
+            class="shrink-0 bg-yellow-400 hover:bg-yellow-300 text-black px-4 py-2 rounded-lg text-sm font-bold transition-colors flex items-center gap-2 shadow-lg shadow-yellow-900/20">
+            Bring Your Story to Life
+            <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+        </button>
+    </header>
+
+    <!-- Draggable List Container -->
+    <div id="screenplay-list" class="space-y-6">
+        <!-- Content will be injected by JS -->
+    </div>
+
+    <!-- Add Scene Button -->
+    <button
+        class="mt-4 text-zinc-500 hover:text-cyan-400 flex items-center gap-2 text-sm font-medium transition-colors px-8">
+        <iconify-icon icon="solar:add-circle-linear" class="text-lg"></iconify-icon>
+        Add another scene
+    </button>
+</div>

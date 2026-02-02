@@ -1,0 +1,37 @@
+{
+  "name": "storyboard-app",
+  "version": "1.0.0",
+  "description": "Storyboard creation app",
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "concurrently \"npm run server\" \"vite\"",
+    "vite": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "server": "node --watch server/index.js"
+  },
+  "dependencies": {
+    "@iconify/iconify": "^3.1.1",
+    "@tailwindcss/vite": "^4.1.18",
+    "@tiptap/core": "^3.18.0",
+    "@tiptap/extension-drag-handle": "^3.18.0",
+    "@tiptap/pm": "^3.18.0",
+    "@tiptap/starter-kit": "^3.18.0",
+    "better-sqlite3": "^11.6.0",
+    "cors": "^2.8.5",
+    "ejs": "^4.0.1",
+    "express": "^4.21.0",
+    "iconify-icon": "^3.0.2",
+    "multer": "^2.0.2",
+    "sortablejs": "^1.15.6"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.24",
+    "concurrently": "^9.2.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "vite": "^7.3.1",
+    "vite-plugin-ejs": "^1.7.0"
+  }
+}

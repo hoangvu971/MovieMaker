@@ -1,0 +1,31 @@
+<header class="h-14 bg-zinc-950 border-b border-zinc-800 flex items-center justify-between px-4 shrink-0 z-20">
+    <div class="flex items-center gap-4">
+        <a href="/" class="p-2 hover:bg-zinc-800 rounded-lg transition-colors text-zinc-400 hover:text-white">
+            <iconify-icon icon="solar:arrow-left-linear" width="20" height="20"></iconify-icon>
+        </a>
+        <div class="h-6 w-px bg-zinc-800"></div>
+        <div>
+            <h1 id="project-title"
+                class="text-sm font-medium text-white outline-none focus:ring-1 focus:ring-cyan-500/50 rounded px-1 -mx-1"
+                contenteditable="true" title="Click to edit project name">Untitled Project</h1>
+            <div id="project-save-status" class="text-[10px] text-zinc-500 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Saved
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Actions -->
+    <div class="flex items-center gap-3">
+        <button
+            class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 rounded-lg text-xs font-medium transition-colors">
+            <iconify-icon icon="solar:users-group-rounded-linear" width="14"></iconify-icon>
+            Invite
+        </button>
+        <button
+            class="flex items-center gap-2 px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg text-xs font-semibold transition-colors shadow-lg shadow-cyan-900/20">
+            <iconify-icon icon="solar:play-circle-bold" width="14"></iconify-icon>
+            Export
+        </button>
+    </div>
+</header>

@@ -16,7 +16,6 @@ function rowToProject(row) {
     name: row.name ?? 'Untitled Project',
     storyIdea: row.story_idea ?? '',
     screenplayScenes,
-    systemPrompt: row.system_prompt ?? '',
     assets,
     shotCount: row.shot_count ?? 0,
     status: row.status ?? 'draft',
@@ -69,15 +68,14 @@ export function createProject(attrs = {}) {
   const storyIdea = attrs.storyIdea ?? '';
   // screenplayScenes in JSON column is legacy/fallback, but we can init it empty
   const screenplayScenes = JSON.stringify([]);
-  const systemPrompt = attrs.systemPrompt ?? '';
   const assets = JSON.stringify([]); // Legacy assets column
   const shotCount = attrs.shotCount ?? 0;
   const status = attrs.status ?? 'draft';
 
   db.prepare(
-    `INSERT INTO projects (id, name, story_idea, screenplay_scenes, system_prompt, assets, shot_count, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-  ).run(id, name, storyIdea, screenplayScenes, systemPrompt, assets, shotCount, status, now, now);
+    `INSERT INTO projects (id, name, story_idea, screenplay_scenes, assets, shot_count, status, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  ).run(id, name, storyIdea, screenplayScenes, assets, shotCount, status, now, now);
 
   // If initial scenes provided, create them
   if (attrs.screenplayScenes && attrs.screenplayScenes.length > 0) {
@@ -102,15 +100,14 @@ export function updateProject(id, attrs) {
 
   const name = attrs.name !== undefined ? attrs.name : existing.name;
   const storyIdea = attrs.storyIdea !== undefined ? attrs.storyIdea : existing.storyIdea;
-  const systemPrompt = attrs.systemPrompt !== undefined ? attrs.systemPrompt : existing.systemPrompt;
   const shotCount = attrs.shotCount !== undefined ? attrs.shotCount : existing.shotCount;
   const status = attrs.status !== undefined ? attrs.status : existing.status;
 
   db.prepare(
     `UPDATE projects
-     SET name = ?, story_idea = ?, system_prompt = ?, shot_count = ?, status = ?, updated_at = ?
+     SET name = ?, story_idea = ?, shot_count = ?, status = ?, updated_at = ?
      WHERE id = ?`
-  ).run(name, storyIdea, systemPrompt, shotCount, status, now, id);
+  ).run(name, storyIdea, shotCount, status, now, id);
 
   return getProject(id);
 }
@@ -145,7 +142,7 @@ export function saveApiSettings(settings) {
   const db = getDb();
   const now = new Date().toISOString();
   const existing = db.prepare('SELECT * FROM api_settings WHERE id = ?').get('default');
-  
+
   if (existing) {
     db.prepare(
       `UPDATE api_settings SET google_ai_api_key = ?, updated_at = ? WHERE id = ?`
@@ -155,6 +152,6 @@ export function saveApiSettings(settings) {
       `INSERT INTO api_settings (id, google_ai_api_key, created_at, updated_at) VALUES (?, ?, ?, ?)`
     ).run('default', settings.googleAiApiKey || '', now, now);
   }
-  
+
   return getApiSettings();
 }

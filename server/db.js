@@ -31,7 +31,6 @@ function runMigrations(database) {
       name TEXT NOT NULL DEFAULT 'Untitled Project',
       story_idea TEXT DEFAULT '',
       screenplay_scenes TEXT DEFAULT '[]',
-      system_prompt TEXT DEFAULT '',
       assets TEXT DEFAULT '[]',
       shot_count INTEGER DEFAULT 0,
       status TEXT DEFAULT 'draft',

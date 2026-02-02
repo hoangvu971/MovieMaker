@@ -17,7 +17,7 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Database
 
 - **SQLite** file: `data/storyboard.db` (created on first run).
-- **Projects table**: `id`, `name`, `story_idea`, `screenplay_scenes` (JSON), `system_prompt`, `assets` (JSON), `shot_count`, `status`, `created_at`, `updated_at`.
+- **Projects table**: `id`, `name`, `story_idea`, `screenplay_scenes` (JSON), `assets` (JSON), `shot_count`, `status`, `created_at`, `updated_at`.
 - Migrations run automatically in `server/db.js`.
 
 ## Frontend (modular)

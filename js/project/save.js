@@ -51,7 +51,7 @@ export function collectScreenplayScenes() {
   });
 }
 
-export function collectStoryIdea() {
+export function collectScript() {
   const el = document.getElementById('input-project-script');
   return el ? el.value.trim() : '';
 }
@@ -70,11 +70,11 @@ export async function saveProjectNow() {
   }
   setSaveStatus('Saving...', true);
   try {
-    const storyIdea = collectStoryIdea();
+    const script = collectScript();
     const screenplayScenes = collectScreenplayScenes();
     await window.StoryboardAPI.updateProject(currentProjectId, {
       name: getProjectName(),
-      storyIdea,
+      script,
       screenplayScenes,
       shotCount: screenplayScenes.length,
     });

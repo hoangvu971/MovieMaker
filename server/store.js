@@ -14,7 +14,7 @@ function rowToProject(row) {
   return {
     id: row.id,
     name: row.name ?? 'Untitled Project',
-    storyIdea: row.story_idea ?? '',
+    script: row.script ?? '',
     screenplayScenes,
     assets,
     shotCount: row.shot_count ?? 0,
@@ -65,7 +65,7 @@ export function createProject(attrs = {}) {
   const now = new Date().toISOString();
   const id = attrs.id ?? randomUUID();
   const name = attrs.name ?? 'Untitled Project';
-  const storyIdea = attrs.storyIdea ?? '';
+  const script = attrs.script ?? '';
   // screenplayScenes in JSON column is legacy/fallback, but we can init it empty
   const screenplayScenes = JSON.stringify([]);
   const assets = JSON.stringify([]); // Legacy assets column
@@ -73,9 +73,9 @@ export function createProject(attrs = {}) {
   const status = attrs.status ?? 'draft';
 
   db.prepare(
-    `INSERT INTO projects (id, name, story_idea, screenplay_scenes, assets, shot_count, status, created_at, updated_at)
+    `INSERT INTO projects (id, name, script, screenplay_scenes, assets, shot_count, status, created_at, updated_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
-  ).run(id, name, storyIdea, screenplayScenes, assets, shotCount, status, now, now);
+  ).run(id, name, script, screenplayScenes, assets, shotCount, status, now, now);
 
   // If initial scenes provided, create them
   if (attrs.screenplayScenes && attrs.screenplayScenes.length > 0) {
@@ -99,15 +99,15 @@ export function updateProject(id, attrs) {
   }
 
   const name = attrs.name !== undefined ? attrs.name : existing.name;
-  const storyIdea = attrs.storyIdea !== undefined ? attrs.storyIdea : existing.storyIdea;
+  const script = attrs.script !== undefined ? attrs.script : existing.script;
   const shotCount = attrs.shotCount !== undefined ? attrs.shotCount : existing.shotCount;
   const status = attrs.status !== undefined ? attrs.status : existing.status;
 
   db.prepare(
     `UPDATE projects
-     SET name = ?, story_idea = ?, shot_count = ?, status = ?, updated_at = ?
+     SET name = ?, script = ?, shot_count = ?, status = ?, updated_at = ?
      WHERE id = ?`
-  ).run(name, storyIdea, shotCount, status, now, id);
+  ).run(name, script, shotCount, status, now, id);
 
   return getProject(id);
 }

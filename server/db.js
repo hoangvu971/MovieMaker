@@ -29,7 +29,7 @@ function runMigrations(database) {
     CREATE TABLE IF NOT EXISTS projects (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL DEFAULT 'Untitled Project',
-      story_idea TEXT DEFAULT '',
+      script TEXT DEFAULT '',
       screenplay_scenes TEXT DEFAULT '[]',
       assets TEXT DEFAULT '[]',
       shot_count INTEGER DEFAULT 0,

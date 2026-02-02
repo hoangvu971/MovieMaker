@@ -273,11 +273,11 @@ function initApiModal() {
       await window.StoryboardAPI.saveApiSettings(apiKey);
       showStatus('success', 'API key saved successfully!');
       statusBadge?.classList.remove('hidden');
-      
+
       // Clear input and update placeholder
       apiKeyInput.value = '';
       apiKeyInput.placeholder = '••••••••' + apiKey.slice(-4) + ' (saved)';
-      
+
       // Close modal after short delay
       setTimeout(closeModal, 1500);
     } catch (err) {

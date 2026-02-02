@@ -30,9 +30,9 @@ function applyProject(project) {
   const inputOnboarding = document.getElementById('input-onboarding');
   const inputScript = document.getElementById('input-project-script');
   if (titleEl) titleEl.textContent = project.name || 'Untitled Project';
-  const storyIdea = project.storyIdea || '';
-  if (inputOnboarding) inputOnboarding.value = storyIdea;
-  if (inputScript) inputScript.value = storyIdea;
+  const script = project.script || '';
+  if (inputOnboarding) inputOnboarding.value = script;
+  if (inputScript) inputScript.value = script;
   if (project.screenplayScenes?.length > 0) {
     const list = document.getElementById('screenplay-list');
     if (list)
@@ -41,8 +41,8 @@ function applyProject(project) {
         .join('');
   }
 
-  // If project already has a story idea or scenes, jump to the idea tab
-  if (storyIdea || project.screenplayScenes?.length > 0) {
+  // If project already has a script or scenes, jump to the idea tab
+  if (script || project.screenplayScenes?.length > 0) {
     const viewScript = document.getElementById('view-script');
     if (viewScript) viewScript.classList.add('hidden');
     switchProjectTab('idea');

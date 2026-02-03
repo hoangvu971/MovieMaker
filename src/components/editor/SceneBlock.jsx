@@ -106,67 +106,63 @@ function SceneBlock({ scene, index, onUpdate, onDelete, projectId }) {
         <div
             ref={setNodeRef}
             style={style}
-            className={`scene-block group relative pl-8 rounded-lg p-4 transition-colors -ml-2 border ${isDragOver
+            className={`scene-block group relative rounded-lg p-4 transition-colors ml-8 border ${isDragOver
                 ? 'bg-zinc-900/50 border-cyan-500'
                 : 'border-transparent hover:border-zinc-800 hover:bg-zinc-900/50'
                 }`}
         >
-            {/* Drag Handle and Actions */}
-            <div className="absolute left-0 top-1.5 opacity-0 group-hover:opacity-100 flex items-center gap-0.5 transition-opacity text-zinc-500">
-                <button
-                    type="button"
-                    className="p-1 hover:text-white hover:bg-zinc-800 rounded transition-colors"
-                    title="Add Scene"
+            {/* Drag Handle and Actions Menu - Outside on the left like Notion */}
+            <div className="absolute -left-8 top-3 flex flex-col gap-1 items-center transition-all duration-200">
+                {/* Drag Handle */}
+                <div
+                    {...attributes}
+                    {...listeners}
+                    className="handle p-1 rounded transition-all cursor-grab active:cursor-grabbing text-zinc-600 hover:text-zinc-400 hover:bg-zinc-800"
+                    title="Drag to reorder"
                 >
-                    <iconify-icon icon="solar:add-circle-linear" className="text-lg"></iconify-icon>
-                </button>
+                    <iconify-icon icon="solar:hamburger-menu-linear" className="text-lg"></iconify-icon>
+                </div>
 
+                {/* Menu Button */}
                 <div className="relative">
                     <button
                         type="button"
-                        {...attributes}
-                        {...listeners}
-                        className="handle p-1 hover:text-white hover:bg-zinc-800 rounded cursor-grab active:cursor-grabbing transition-colors"
-                        title="Drag to move"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowMenu(!showMenu);
+                        }}
+                        className={`p-1 rounded transition-all ${showMenu ? 'bg-zinc-800 text-white' : 'text-zinc-600 hover:text-zinc-400 hover:bg-zinc-800'
+                            }`}
+                        title="Scene options"
                     >
-                        <iconify-icon icon="solar:menu-dots-grid-linear" className="text-lg"></iconify-icon>
+                        <iconify-icon icon="solar:menu-dots-bold" className="text-sm"></iconify-icon>
                     </button>
 
-                    {/* Context Menu */}
+                    {/* Action Dropdown Menu */}
                     {showMenu && (
                         <>
                             <div
-                                className="fixed inset-0 z-40"
+                                className="fixed inset-0 z-10"
                                 onClick={() => setShowMenu(false)}
                             ></div>
-                            <div className="absolute top-full left-0 mt-1 w-48 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 overflow-hidden text-sm">
+                            <div className="absolute left-full ml-2 top-0 w-48 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl shadow-black/50 overflow-hidden z-20 animate-in fade-in slide-in-from-left-1 duration-200">
+                                <div className="px-3 py-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest border-b border-zinc-800">
+                                    Scene Actions
+                                </div>
                                 <button
-                                    type="button"
-                                    onClick={handleMoveUp}
-                                    className="w-full text-left px-3 py-2 text-zinc-300 hover:bg-zinc-800 hover:text-white flex items-center gap-2 transition-colors"
-                                >
-                                    <iconify-icon icon="solar:arrow-up-linear"></iconify-icon>
-                                    Move up
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        e.stopPropagation();
                                         setShowMenu(false);
                                         onDelete(scene.id);
                                     }}
-                                    className="w-full text-left px-3 py-2 text-red-400 hover:bg-red-500/10 flex items-center gap-2 transition-colors"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors text-left"
                                 >
-                                    <iconify-icon icon="solar:trash-bin-trash-linear"></iconify-icon>
-                                    Delete
+                                    <iconify-icon icon="solar:trash-bin-minimalistic-linear" className="text-lg"></iconify-icon>
+                                    <span>Delete Scene</span>
                                 </button>
-                                <button
-                                    type="button"
-                                    onClick={handleMoveDown}
-                                    className="w-full text-left px-3 py-2 text-zinc-300 hover:bg-zinc-800 hover:text-white flex items-center gap-2 transition-colors"
-                                >
-                                    <iconify-icon icon="solar:arrow-down-linear"></iconify-icon>
-                                    Move down
-                                </button>
+                                <div className="px-3 py-2 text-[10px] text-zinc-600 border-t border-zinc-800 italic">
+                                    Tip: Drag the handle to reorder
+                                </div>
                             </div>
                         </>
                     )}

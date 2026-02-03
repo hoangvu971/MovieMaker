@@ -96,13 +96,6 @@ function ScreenplayView({ project, onSave }) {
                     <h2 className="text-2xl font-semibold text-white mb-2">Screenplay Breakdown</h2>
                     <p className="text-zinc-400">{localScenes.length} scene{localScenes.length !== 1 ? 's' : ''}</p>
                 </div>
-                <button
-                    onClick={handleAddScene}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700 transition-colors"
-                >
-                    <iconify-icon icon="solar:add-circle-linear" width="18"></iconify-icon>
-                    Add Scene
-                </button>
             </div>
 
             {/* Scenes List */}
@@ -129,6 +122,21 @@ function ScreenplayView({ project, onSave }) {
                     </div>
                 </SortableContext>
             </DndContext>
+
+            {/* Add Scene Button at the bottom */}
+            <div className="mt-8 pt-8 border-t border-zinc-900 flex justify-center">
+                <button
+                    onClick={handleAddScene}
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-800 transition-all hover:scale-[1.02] active:scale-95 group"
+                >
+                    <iconify-icon
+                        icon="solar:add-circle-bold"
+                        width="20"
+                        className="text-cyan-500 group-hover:rotate-90 transition-transform duration-300"
+                    ></iconify-icon>
+                    <span className="font-medium">Add New Scene</span>
+                </button>
+            </div>
         </div>
     );
 }

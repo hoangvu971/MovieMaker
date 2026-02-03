@@ -18,8 +18,8 @@ import SceneBlock from './SceneBlock';
 import ConfirmDialog from '../common/ConfirmDialog';
 import { useToast } from '../common/ToastProvider';
 
-function ScreenplayView({ project, onSave }) {
-    const { localScenes, setLocalScenes } = useEditorStore();
+function ScreenplayView({ project }) {
+    const { localScenes, setLocalScenes, updateScene, deleteScene, reorderScenes } = useEditorStore();
     const { showToast } = useToast();
     const [deleteDialogState, setDeleteDialogState] = useState({ isOpen: false, sceneId: null, sceneIndex: null });
 
@@ -37,18 +37,13 @@ function ScreenplayView({ project, onSave }) {
             const oldIndex = localScenes.findIndex((scene) => scene.id === active.id);
             const newIndex = localScenes.findIndex((scene) => scene.id === over.id);
 
-            const reorderedScenes = arrayMove(localScenes, oldIndex, newIndex);
-            setLocalScenes(reorderedScenes);
-            onSave({ screenplayScenes: reorderedScenes });
+            const reordered = arrayMove(localScenes, oldIndex, newIndex);
+            reorderScenes(reordered);
         }
     };
 
     const handleSceneUpdate = (sceneId, updates) => {
-        const updatedScenes = localScenes.map((scene) =>
-            scene.id === sceneId ? { ...scene, ...updates } : scene
-        );
-        setLocalScenes(updatedScenes);
-        onSave({ screenplayScenes: updatedScenes });
+        updateScene(sceneId, updates);
     };
 
     const handleSceneDelete = (sceneId) => {
@@ -58,9 +53,7 @@ function ScreenplayView({ project, onSave }) {
 
     const confirmSceneDelete = () => {
         const { sceneId } = deleteDialogState;
-        const updatedScenes = localScenes.filter((scene) => scene.id !== sceneId);
-        setLocalScenes(updatedScenes);
-        onSave({ screenplayScenes: updatedScenes });
+        deleteScene(sceneId);
         setDeleteDialogState({ isOpen: false, sceneId: null, sceneIndex: null });
         showToast('Scene deleted successfully', 'success');
     };
@@ -72,10 +65,11 @@ function ScreenplayView({ project, onSave }) {
             content: '',
             assets: [],
         };
-        const updatedScenes = [...localScenes, newScene];
-        setLocalScenes(updatedScenes);
-        onSave({ screenplayScenes: updatedScenes });
+        setLocalScenes([...localScenes, newScene]);
+        // Also need to set unsaved for manually adding scene via setLocalScenes
+        useEditorStore.getState().setSaveStatus('unsaved');
     };
+
 
     if (!localScenes || localScenes.length === 0) {
         return (

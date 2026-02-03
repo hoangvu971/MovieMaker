@@ -24,6 +24,10 @@ function EditorPage() {
         activeTab,
         setActiveTab,
         setCurrentProjectId,
+        localName,
+        setLocalName,
+        localScript,
+        setLocalScript,
         localScenes,
         setLocalScenes,
         saveStatus,
@@ -33,11 +37,23 @@ function EditorPage() {
 
     // Initialize editor when project loads (only once)
     useEffect(() => {
-        if (project && !localScenes.length && project.screenplayScenes?.length > 0) {
-            // Only initialize if we don't have local scenes yet
-            setLocalScenes(project.screenplayScenes);
+        if (project) {
+            // Only initialize if we don't have local data yet
+            if (!localScenes.length && project.screenplayScenes?.length > 0) {
+                setLocalScenes(project.screenplayScenes);
+            }
+            if (!localName && project.name) {
+                setLocalName(project.name);
+                // setLocalName by default sets state to unsaved, so we force it back to saved
+                setSaveStatus('saved');
+            }
+            if (!localScript && project.script) {
+                setLocalScript(project.script);
+                // setLocalScript by default sets state to unsaved, so we force it back to saved
+                setSaveStatus('saved');
+            }
         }
-    }, [project?.id]); // Only run when project ID changes
+    }, [project?.id, setLocalScenes, setLocalName, setLocalScript, setSaveStatus]); // Only run when project ID changes
 
     // Set current project ID and auto-switch tabs
     useEffect(() => {
@@ -64,35 +80,15 @@ function EditorPage() {
         return () => resetEditor();
     }, [resetEditor]);
 
-    // Debounced save function
-    const debouncedSave = useCallback(
-        debounce(async (projectId, data) => {
-            try {
-                setSaveStatus('saving');
-                await updateProject.mutateAsync({ id: projectId, data });
-                setSaveStatus('saved');
-            } catch (error) {
-                console.error('Auto-save failed:', error);
-                setSaveStatus('unsaved');
-            }
-        }, AUTO_SAVE_DELAY),
-        [updateProject, setSaveStatus]
-    );
-
-    // Save project data
-    const handleSave = useCallback((data) => {
-        if (!projectId) return;
-        setSaveStatus('unsaved');
-        debouncedSave(projectId, data);
-    }, [projectId, debouncedSave, setSaveStatus]);
-
-    // Save now (immediate)
+    // Save now (immediate manual save)
     const handleSaveNow = useCallback(async () => {
         if (!projectId) return;
 
         try {
             setSaveStatus('saving');
             const data = {
+                name: localName,
+                script: localScript,
                 screenplayScenes: localScenes,
             };
             await updateProject.mutateAsync({ id: projectId, data });
@@ -101,7 +97,7 @@ function EditorPage() {
             console.error('Save failed:', error);
             setSaveStatus('unsaved');
         }
-    }, [projectId, localScenes, updateProject, setSaveStatus]);
+    }, [projectId, localName, localScript, localScenes, updateProject, setSaveStatus]);
 
     if (isLoading) {
         return (
@@ -158,13 +154,11 @@ function EditorPage() {
                         {activeTab === EDITOR_TABS.IDEA && (
                             <StoryIdeaView
                                 project={project}
-                                onSave={handleSave}
                             />
                         )}
                         {activeTab === EDITOR_TABS.BREAKDOWN && (
                             <ScreenplayView
                                 project={project}
-                                onSave={handleSave}
                             />
                         )}
                     </div>

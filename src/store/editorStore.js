@@ -9,6 +9,12 @@ export const useEditorStore = create((set, get) => ({
     currentProjectId: null,
     setCurrentProjectId: (id) => set({ currentProjectId: id }),
 
+    // Local project data (modified before syncing to server)
+    localName: '',
+    setLocalName: (name) => set({ localName: name, saveStatus: 'unsaved' }),
+    localScript: '',
+    setLocalScript: (script) => set({ localScript: script, saveStatus: 'unsaved' }),
+
     // Active tab in editor ('script' | 'idea' | 'breakdown')
     activeTab: 'script',
     setActiveTab: (tab) => set({ activeTab: tab }),
@@ -31,15 +37,19 @@ export const useEditorStore = create((set, get) => ({
         localScenes: state.localScenes.map((scene) =>
             scene.id === sceneId ? { ...scene, ...updates } : scene
         ),
+        saveStatus: 'unsaved',
     })),
     deleteScene: (sceneId) => set((state) => ({
         localScenes: state.localScenes.filter((scene) => scene.id !== sceneId),
+        saveStatus: 'unsaved',
     })),
-    reorderScenes: (scenes) => set({ localScenes: scenes }),
+    reorderScenes: (scenes) => set({ localScenes: scenes, saveStatus: 'unsaved' }),
 
     // Reset editor state
     resetEditor: () => set({
         currentProjectId: null,
+        localName: '',
+        localScript: '',
         activeTab: 'script',
         activeSidebar: null,
         saveStatus: 'saved',

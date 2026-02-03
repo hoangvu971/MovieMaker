@@ -5,27 +5,23 @@ import { useEditorStore } from '../../store/editorStore';
 
 function EditorHeader({ project, onSave }) {
     const navigate = useNavigate();
+    const { localName, setLocalName, saveStatus } = useEditorStore();
     const [isEditingTitle, setIsEditingTitle] = useState(false);
-    const [title, setTitle] = useState(project?.name || 'Untitled Project');
-    const updateProject = useUpdateProject();
-    const { saveStatus } = useEditorStore();
+    const [title, setTitle] = useState(localName || 'Untitled Project');
 
-    const saveTitle = async () => {
-        if (title === project?.name || !title.trim()) {
+    // Update local title when store changes (e.g. on load)
+    React.useEffect(() => {
+        if (localName) setTitle(localName);
+    }, [localName]);
+
+    const saveTitle = () => {
+        if (title === localName || !title.trim()) {
             setIsEditingTitle(false);
             return;
         }
 
-        try {
-            await updateProject.mutateAsync({
-                id: project.id,
-                data: { name: title.trim() },
-            });
-            setIsEditingTitle(false);
-        } catch (error) {
-            console.error('Failed to update title:', error);
-            setTitle(project?.name || 'Untitled Project');
-        }
+        setLocalName(title.trim());
+        setIsEditingTitle(false);
     };
 
     const statusConfig = {

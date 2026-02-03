@@ -6,19 +6,18 @@ import { EDITOR_TABS } from '../../constants';
 
 function ScriptView({ projectId }) {
     const navigate = useNavigate();
-    const [script, setScript] = useState('');
-    const { setActiveTab } = useEditorStore();
+    const { localScript, setLocalScript, setActiveTab } = useEditorStore();
     const generateScenes = useGenerateScenes();
 
     const handleStartGeneration = async () => {
-        if (!script.trim()) {
+        if (!localScript.trim()) {
             alert('Please enter a script first');
             return;
         }
 
         try {
             // Generate scenes using AI
-            await generateScenes.mutateAsync({ projectId, script });
+            await generateScenes.mutateAsync({ projectId, script: localScript });
             // Switch to breakdown tab
             setActiveTab(EDITOR_TABS.BREAKDOWN);
         } catch (error) {
@@ -44,8 +43,8 @@ function ScriptView({ projectId }) {
             <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8 backdrop-blur-sm">
                 <label className="block text-sm font-medium text-zinc-400 mb-3">Your Script or Story Idea</label>
                 <textarea
-                    value={script}
-                    onChange={(e) => setScript(e.target.value)}
+                    value={localScript}
+                    onChange={(e) => setLocalScript(e.target.value)}
                     placeholder="Enter your script, story idea, or scene description here...
 
 For example:
@@ -66,7 +65,7 @@ Sarah sits alone at a corner table, nervously checking her phone. The door chime
 
                     <button
                         onClick={handleStartGeneration}
-                        disabled={!script.trim() || generateScenes.isPending}
+                        disabled={!localScript.trim() || generateScenes.isPending}
                         className="flex items-center gap-2 px-6 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:bg-zinc-800 disabled:text-zinc-600 disabled:cursor-not-allowed text-black font-semibold transition-colors"
                     >
                         {generateScenes.isPending ? (

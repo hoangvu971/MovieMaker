@@ -6,12 +6,12 @@ import { useEditorStore } from '../../store/editorStore';
 import { EDITOR_TABS } from '../../constants';
 
 function StoryIdeaView({ project, onSave }) {
-    const { setActiveTab } = useEditorStore();
+    const { setActiveTab, localScript, setLocalScript } = useEditorStore();
     const generateScenes = useGenerateScenes();
 
     const editor = useEditor({
         extensions: [StarterKit],
-        content: project?.script || '',
+        content: localScript || '',
         editorProps: {
             attributes: {
                 class: 'prose prose-invert max-w-none focus:outline-none min-h-[400px] text-zinc-300',
@@ -19,15 +19,15 @@ function StoryIdeaView({ project, onSave }) {
         },
         onUpdate: ({ editor }) => {
             const content = editor.getText();
-            onSave({ script: content });
+            setLocalScript(content);
         },
     });
 
     useEffect(() => {
-        if (editor && project?.script && editor.getText() !== project.script) {
-            editor.commands.setContent(project.script);
+        if (editor && localScript && editor.getText() !== localScript) {
+            editor.commands.setContent(localScript);
         }
-    }, [editor, project?.script]);
+    }, [editor, localScript]);
 
     const handleModifyAndRegenerate = async () => {
         if (!editor) return;
@@ -71,8 +71,8 @@ function StoryIdeaView({ project, onSave }) {
                     <button
                         onClick={() => editor.chain().focus().toggleBold().run()}
                         className={`px-3 py-2 rounded-lg text-sm transition-colors ${editor.isActive('bold')
-                                ? 'bg-cyan-500 text-black'
-                                : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                            ? 'bg-cyan-500 text-black'
+                            : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                             }`}
                     >
                         <iconify-icon icon="solar:text-bold-linear" width="18"></iconify-icon>
@@ -80,8 +80,8 @@ function StoryIdeaView({ project, onSave }) {
                     <button
                         onClick={() => editor.chain().focus().toggleItalic().run()}
                         className={`px-3 py-2 rounded-lg text-sm transition-colors ${editor.isActive('italic')
-                                ? 'bg-cyan-500 text-black'
-                                : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                            ? 'bg-cyan-500 text-black'
+                            : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                             }`}
                     >
                         <iconify-icon icon="solar:text-italic-linear" width="18"></iconify-icon>
@@ -89,8 +89,8 @@ function StoryIdeaView({ project, onSave }) {
                     <button
                         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
                         className={`px-3 py-2 rounded-lg text-sm transition-colors ${editor.isActive('heading', { level: 2 })
-                                ? 'bg-cyan-500 text-black'
-                                : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                            ? 'bg-cyan-500 text-black'
+                            : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                             }`}
                     >
                         H2
@@ -98,8 +98,8 @@ function StoryIdeaView({ project, onSave }) {
                     <button
                         onClick={() => editor.chain().focus().toggleBulletList().run()}
                         className={`px-3 py-2 rounded-lg text-sm transition-colors ${editor.isActive('bulletList')
-                                ? 'bg-cyan-500 text-black'
-                                : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                            ? 'bg-cyan-500 text-black'
+                            : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                             }`}
                     >
                         <iconify-icon icon="solar:list-linear" width="18"></iconify-icon>

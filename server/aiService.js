@@ -34,14 +34,48 @@ export async function generateScenes(script, apiKey) {
         // Parse JSON response
         let scenes;
         try {
-            // Try to extract JSON from markdown code blocks if present
-            const jsonMatch = text.match(/```(?:json)?\s*(\[[\s\S]*?\])\s*```/);
-            const jsonText = jsonMatch ? jsonMatch[1] : text.trim();
+            // More robust JSON extraction: find first [ and last ]
+            let jsonText = text.trim();
 
-            scenes = JSON.parse(jsonText);
+            // Try to extract from markdown first
+            const markdownMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+            if (markdownMatch) {
+                jsonText = markdownMatch[1].trim();
+            } else {
+                // If no markdown, find the first '[' and last ']'
+                const startIdx = text.indexOf('[');
+                const endIdx = text.lastIndexOf(']');
+
+                if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+                    jsonText = text.substring(startIdx, endIdx + 1);
+                }
+            }
+
+            try {
+                scenes = JSON.parse(jsonText);
+            } catch (initialError) {
+                // Fallback: AI often forgets to escape internal double quotes
+                // Try to manually escape quotes that are inside "content": "..." values
+                try {
+                    const fixedJson = jsonText.replace(/"content":\s*"([\s\S]*?)"(?=\s*[,}\]])/g, (match, content) => {
+                        // Escape quotes that aren't already escaped
+                        const escapedContent = content.replace(/(?<!\\)"/g, '\\"');
+                        return `"content": "${escapedContent}"`;
+                    });
+                    scenes = JSON.parse(fixedJson);
+                } catch (secondError) {
+                    console.error('Failed to parse AI response even after "medic" fix.');
+                    console.error('Original Text:', text);
+                    console.error('Extracted JSON Text:', jsonText);
+                    throw new Error('AI response is not valid JSON. Please try again.');
+                }
+            }
         } catch (parseError) {
-            console.error('Failed to parse AI response:', text);
-            throw new Error('AI response is not valid JSON. Please try again.');
+            if (parseError.message.includes('AI response is not valid JSON')) {
+                throw parseError;
+            }
+            console.error('Unexpected parsing error:', parseError);
+            throw new Error('Failed to process AI response. Please try again.');
         }
 
         // Validate structure

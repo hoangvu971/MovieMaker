@@ -14,6 +14,10 @@ QUAN TRỌNG: Bạn PHẢI trả về kết quả dưới dạng mảng JSON h�
   "content": "Mô tả chi tiết cảnh quay"
 }
 
+Lưu ý về định dạng:
+- Nếu trong phần mô tả có dấu ngoặc kép ("), bạn PHẢI sử dụng dấu backslash (\") để thoát chuỗi (ví dụ: \"one night stand\").
+- Trả về mảng JSON thuần túy, không có văn bản giải thích.
+
 Hướng dẫn phân tích:
 1. Đọc kịch bản và chia thành các cảnh quay logic
 2. Mỗi cảnh nên bao gồm: địa điểm, thời gian, hành động chính

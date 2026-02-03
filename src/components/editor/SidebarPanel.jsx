@@ -3,14 +3,18 @@ import { useEditorStore } from '../../store/editorStore';
 import { useProjectAssets, useUploadAssets, useDeleteAsset } from '../../hooks/useAssets';
 import { SIDEBAR_PANELS } from '../../constants';
 import ApiSettingsModal from '../home/ApiSettingsModal';
+import ConfirmDialog from '../common/ConfirmDialog';
+import { useToast } from '../common/ToastProvider';
 
 function SidebarPanel({ projectId }) {
     const { activeSidebar, setActiveSidebar } = useEditorStore();
     const { data: assets = [], isLoading } = useProjectAssets(projectId);
     const uploadAssets = useUploadAssets();
     const deleteAsset = useDeleteAsset();
+    const { showToast } = useToast();
 
     const [isDragging, setIsDragging] = useState(false);
+    const [deleteDialogState, setDeleteDialogState] = useState({ isOpen: false, assetId: null, assetName: '' });
     const fileInputRef = useRef(null);
 
     const handleFileSelect = async (files) => {
@@ -34,14 +38,20 @@ function SidebarPanel({ projectId }) {
         }
     };
 
-    const handleDelete = async (assetId) => {
-        if (!window.confirm('Delete this asset? It will be removed from all scenes.')) return;
+    const handleDelete = (assetId, assetName) => {
+        setDeleteDialogState({ isOpen: true, assetId, assetName });
+    };
+
+    const confirmDelete = async () => {
+        const { assetId } = deleteDialogState;
+        setDeleteDialogState({ isOpen: false, assetId: null, assetName: '' });
 
         try {
             await deleteAsset.mutateAsync(assetId);
+            showToast('Asset deleted successfully', 'success');
         } catch (error) {
             console.error('Delete failed:', error);
-            alert('Failed to delete asset');
+            showToast('Failed to delete asset', 'error');
         }
     };
 
@@ -170,7 +180,7 @@ function SidebarPanel({ projectId }) {
                                                 type="button"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    handleDelete(asset.id);
+                                                    handleDelete(asset.id, asset.name);
                                                 }}
                                                 className="absolute top-1 right-1 w-5 h-5 bg-red-500/80 hover:bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                                                 title="Delete Asset"
@@ -191,6 +201,17 @@ function SidebarPanel({ projectId }) {
                     </div>
                 )}
             </aside>
+
+            {/* Delete Confirmation Dialog */}
+            <ConfirmDialog
+                isOpen={deleteDialogState.isOpen}
+                onClose={() => setDeleteDialogState({ isOpen: false, assetId: null, assetName: '' })}
+                onConfirm={confirmDelete}
+                title="Delete Asset"
+                message={`Are you sure you want to delete "${deleteDialogState.assetName}"? It will be removed from all scenes. This action cannot be undone.`}
+                confirmText="Delete"
+                variant="danger"
+            />
         </>
     );
 }

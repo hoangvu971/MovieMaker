@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     DndContext,
     closestCenter,
@@ -15,9 +15,13 @@ import {
 } from '@dnd-kit/sortable';
 import { useEditorStore } from '../../store/editorStore';
 import SceneBlock from './SceneBlock';
+import ConfirmDialog from '../common/ConfirmDialog';
+import { useToast } from '../common/ToastProvider';
 
 function ScreenplayView({ project, onSave }) {
     const { localScenes, setLocalScenes } = useEditorStore();
+    const { showToast } = useToast();
+    const [deleteDialogState, setDeleteDialogState] = useState({ isOpen: false, sceneId: null, sceneIndex: null });
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -48,11 +52,17 @@ function ScreenplayView({ project, onSave }) {
     };
 
     const handleSceneDelete = (sceneId) => {
-        if (!window.confirm('Delete this scene?')) return;
+        const sceneIndex = localScenes.findIndex((scene) => scene.id === sceneId);
+        setDeleteDialogState({ isOpen: true, sceneId, sceneIndex });
+    };
 
+    const confirmSceneDelete = () => {
+        const { sceneId } = deleteDialogState;
         const updatedScenes = localScenes.filter((scene) => scene.id !== sceneId);
         setLocalScenes(updatedScenes);
         onSave({ screenplayScenes: updatedScenes });
+        setDeleteDialogState({ isOpen: false, sceneId: null, sceneIndex: null });
+        showToast('Scene deleted successfully', 'success');
     };
 
     const handleAddScene = () => {
@@ -137,6 +147,17 @@ function ScreenplayView({ project, onSave }) {
                     <span className="font-medium">Add New Scene</span>
                 </button>
             </div>
+
+            {/* Delete Confirmation Dialog */}
+            <ConfirmDialog
+                isOpen={deleteDialogState.isOpen}
+                onClose={() => setDeleteDialogState({ isOpen: false, sceneId: null, sceneIndex: null })}
+                onConfirm={confirmSceneDelete}
+                title="Delete Scene"
+                message={`Are you sure you want to delete Scene ${(deleteDialogState.sceneIndex ?? 0) + 1}? This action cannot be undone.`}
+                confirmText="Delete"
+                variant="danger"
+            />
         </div>
     );
 }

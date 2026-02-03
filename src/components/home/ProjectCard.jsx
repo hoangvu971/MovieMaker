@@ -2,25 +2,32 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDeleteProject, useUpdateProject } from '../../hooks/useProjects';
 import { formatRelativeTime } from '../../utils/helpers';
+import ConfirmDialog from '../common/ConfirmDialog';
+import { useToast } from '../common/ToastProvider';
 
 function ProjectCard({ project }) {
     const [showMenu, setShowMenu] = useState(false);
     const [isEditingName, setIsEditingName] = useState(false);
     const [newName, setNewName] = useState(project.name || 'Untitled Project');
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
     const deleteProject = useDeleteProject();
     const updateProject = useUpdateProject();
+    const { showToast } = useToast();
 
     const shotsLabel = project.shotCount > 0 ? `${project.shotCount} shots` : 'Draft';
     const timeLabel = project.updatedAt ? formatRelativeTime(project.updatedAt) : 'Created recently';
 
     const handleDelete = async () => {
-        if (!window.confirm('Are you sure you want to delete this project?')) return;
+        setShowDeleteDialog(false);
+        setShowMenu(false);
 
         try {
             await deleteProject.mutateAsync(project.id);
+            showToast('Project deleted successfully', 'success');
         } catch (error) {
-            alert('Failed to delete project');
+            console.error('Failed to delete project:', error);
+            showToast('Failed to delete project', 'error');
         }
     };
 
@@ -128,7 +135,7 @@ function ProjectCard({ project }) {
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setShowMenu(false);
-                                handleDelete();
+                                setShowDeleteDialog(true);
                             }}
                             className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2 transition-colors"
                         >
@@ -172,6 +179,17 @@ function ProjectCard({ project }) {
                     </div>
                 </div>
             )}
+
+            {/* Delete Confirmation Dialog */}
+            <ConfirmDialog
+                isOpen={showDeleteDialog}
+                onClose={() => setShowDeleteDialog(false)}
+                onConfirm={handleDelete}
+                title="Delete Project"
+                message={`Are you sure you want to delete "${project.name || 'Untitled Project'}"? This action cannot be undone.`}
+                confirmText="Delete"
+                variant="danger"
+            />
         </div>
     );
 }

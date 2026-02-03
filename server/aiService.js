@@ -58,8 +58,10 @@ export async function generateScenes(script, apiKey) {
                 // Try to manually escape quotes that are inside "content": "..." values
                 try {
                     const fixedJson = jsonText.replace(/"content":\s*"([\s\S]*?)"(?=\s*[,}\]])/g, (match, content) => {
-                        // Escape quotes that aren't already escaped
-                        const escapedContent = content.replace(/(?<!\\)"/g, '\\"');
+                        // Escape unescaped quotes: replace " with \" unless it's already \"
+                        const escapedContent = content.replace(/\\"/g, '___ESCAPED_QUOTE___')
+                            .replace(/"/g, '\\"')
+                            .replace(/___ESCAPED_QUOTE___/g, '\\"');
                         return `"content": "${escapedContent}"`;
                     });
                     scenes = JSON.parse(fixedJson);

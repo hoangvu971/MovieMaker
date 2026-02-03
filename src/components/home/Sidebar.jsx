@@ -6,7 +6,7 @@ function Sidebar({ onCreateProject }) {
             <nav className="flex-1 p-4 space-y-2">
                 {/* Create New Button */}
                 <button
-                    onClick={onCreateProject}
+                    onClick={() => onCreateProject()}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-medium transition-colors"
                 >
                     <iconify-icon icon="solar:add-circle-linear" width="20" height="20"></iconify-icon>

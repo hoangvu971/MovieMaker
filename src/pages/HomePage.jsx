@@ -70,7 +70,7 @@ function HomePage() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <CreateProjectCard
-                                    icon="solar:add-linear"
+                                    icon="solar:add-circle-linear"
                                     title="Blank Project"
                                     description="Start from scratch with an empty storyboard"
                                     bgColor="cyan"

@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import { ViteEjsPlugin } from 'vite-plugin-ejs';
+import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,13 +8,22 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
     plugins: [
+        react(),
         tailwindcss(),
-        ViteEjsPlugin(),
     ],
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, './src'),
+        },
+    },
     server: {
         port: 5173,
         proxy: {
             '/api': {
+                target: 'http://localhost:3000',
+                changeOrigin: true,
+            },
+            '/uploads': {
                 target: 'http://localhost:3000',
                 changeOrigin: true,
             },
@@ -24,7 +33,6 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 main: path.resolve(__dirname, 'index.html'),
-                editor: path.resolve(__dirname, 'editor.html'),
             },
         },
     },

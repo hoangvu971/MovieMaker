@@ -178,16 +178,6 @@ export function initSceneAssetLists() {
             }
           }, 10);
 
-          // Show toast notification
-          const toast = document.createElement('div');
-          toast.className = 'fixed bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm font-medium animate-in fade-in slide-in-from-bottom-2 duration-300';
-          toast.innerHTML = '<iconify-icon icon="solar:danger-triangle-linear" class="inline-block mr-2 align-text-bottom text-lg"></iconify-icon> Asset already added to this scene';
-          document.body.appendChild(toast);
-          setTimeout(() => {
-            toast.classList.add('transition-opacity', 'opacity-0', 'duration-300');
-            setTimeout(() => toast.remove(), 300);
-          }, 3000);
-
           return;
         }
 
@@ -317,14 +307,6 @@ function initSceneDropZones() {
             (card) => card.dataset.id && card.dataset.id === assetId
           );
           if (isDuplicate) {
-            const toast = document.createElement('div');
-            toast.className = 'fixed bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm font-medium animate-in fade-in slide-in-from-bottom-2 duration-300';
-            toast.innerHTML = '<iconify-icon icon="solar:danger-triangle-linear" class="inline-block mr-2 align-text-bottom text-lg"></iconify-icon> Asset already added to this scene';
-            document.body.appendChild(toast);
-            setTimeout(() => {
-              toast.classList.add('transition-opacity', 'opacity-0', 'duration-300');
-              setTimeout(() => toast.remove(), 300);
-            }, 3000);
             return;
           }
 

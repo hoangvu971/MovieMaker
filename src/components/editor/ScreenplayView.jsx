@@ -1,0 +1,136 @@
+import React from 'react';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { useEditorStore } from '../../store/editorStore';
+import SceneBlock from './SceneBlock';
+
+function ScreenplayView({ project, onSave }) {
+    const { localScenes, setLocalScenes } = useEditorStore();
+
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = (event) => {
+        const { active, over } = event;
+
+        if (active.id !== over.id) {
+            const oldIndex = localScenes.findIndex((scene) => scene.id === active.id);
+            const newIndex = localScenes.findIndex((scene) => scene.id === over.id);
+
+            const reorderedScenes = arrayMove(localScenes, oldIndex, newIndex);
+            setLocalScenes(reorderedScenes);
+            onSave({ screenplayScenes: reorderedScenes });
+        }
+    };
+
+    const handleSceneUpdate = (sceneId, updates) => {
+        const updatedScenes = localScenes.map((scene) =>
+            scene.id === sceneId ? { ...scene, ...updates } : scene
+        );
+        setLocalScenes(updatedScenes);
+        onSave({ screenplayScenes: updatedScenes });
+    };
+
+    const handleSceneDelete = (sceneId) => {
+        if (!window.confirm('Delete this scene?')) return;
+
+        const updatedScenes = localScenes.filter((scene) => scene.id !== sceneId);
+        setLocalScenes(updatedScenes);
+        onSave({ screenplayScenes: updatedScenes });
+    };
+
+    const handleAddScene = () => {
+        const newScene = {
+            id: `scene-${Date.now()}`,
+            order: localScenes.length,
+            content: '',
+            assets: [],
+        };
+        const updatedScenes = [...localScenes, newScene];
+        setLocalScenes(updatedScenes);
+        onSave({ screenplayScenes: updatedScenes });
+    };
+
+    if (!localScenes || localScenes.length === 0) {
+        return (
+            <div className="max-w-4xl mx-auto px-8 py-16 text-center">
+                <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-12">
+                    <iconify-icon icon="solar:notes-minimalistic-linear" className="text-zinc-600 mx-auto mb-4" width="64" height="64"></iconify-icon>
+                    <h2 className="text-2xl font-semibold text-white mb-3">No scenes yet</h2>
+                    <p className="text-zinc-400 mb-8">
+                        Start by writing a script in the Script tab and generate scenes with AI, or add scenes manually.
+                    </p>
+                    <button
+                        onClick={handleAddScene}
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-medium transition-colors"
+                    >
+                        <iconify-icon icon="solar:add-circle-linear" width="20"></iconify-icon>
+                        Add First Scene
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="max-w-4xl mx-auto px-8 py-12">
+            {/* Header */}
+            <div className="mb-8 flex items-center justify-between">
+                <div>
+                    <h2 className="text-2xl font-semibold text-white mb-2">Screenplay Breakdown</h2>
+                    <p className="text-zinc-400">{localScenes.length} scene{localScenes.length !== 1 ? 's' : ''}</p>
+                </div>
+                <button
+                    onClick={handleAddScene}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700 transition-colors"
+                >
+                    <iconify-icon icon="solar:add-circle-linear" width="18"></iconify-icon>
+                    Add Scene
+                </button>
+            </div>
+
+            {/* Scenes List */}
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+            >
+                <SortableContext
+                    items={localScenes.map((s) => s.id)}
+                    strategy={verticalListSortingStrategy}
+                >
+                    <div className="space-y-4">
+                        {localScenes.map((scene, index) => (
+                            <SceneBlock
+                                key={scene.id}
+                                scene={scene}
+                                index={index}
+                                onUpdate={handleSceneUpdate}
+                                onDelete={handleSceneDelete}
+                                projectId={project.id}
+                            />
+                        ))}
+                    </div>
+                </SortableContext>
+            </DndContext>
+        </div>
+    );
+}
+
+export default ScreenplayView;

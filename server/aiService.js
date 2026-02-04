@@ -97,8 +97,10 @@ export async function generateScenes(script, apiKey) {
         }
 
         return scenes.map((scene, index) => ({
+            id: `scene-${Date.now()}-${index}`,
             content: scene.content.trim(),
-            order: index
+            order: index,
+            assets: []
         }));
 
     } catch (error) {

@@ -37,18 +37,22 @@ function EditorPage() {
     } = useEditorStore();
 
     // Initialize editor when project loads - ONCE on mount
+    // Initialize editor when project loads
     useEffect(() => {
-        if (project && !localName) {
-            // First load - sync from server WITHOUT triggering unsaved state
-            if (project.name) {
-                setLocalName(project.name);
-            }
-            if (project.script) {
-                setLocalScript(project.script);
-            }
+        if (project) {
+            // Check if we need to sync (new project loaded)
+            // Always sync if it's a different project or if local state is empty
+
+            // Sync from server WITHOUT triggering unsaved state
+            setLocalName(project.name || '');
+            setLocalScript(project.script || '');
+
             if (project.screenplayScenes?.length > 0) {
                 setLocalScenes(project.screenplayScenes);
+            } else {
+                setLocalScenes([]);
             }
+
             if (project.projectState) {
                 setProjectState(project.projectState);
             }
@@ -56,7 +60,7 @@ function EditorPage() {
             // Mark as saved after initialization
             setSaveStatus('saved');
         }
-    }, [project?.id]); // Only depend on project ID
+    }, [project]); // Re-run whenever project object changes (which happens when ID changes and data is fetched)
 
     // Set current project ID and auto-switch tabs (only on initial load)
     const hasAutoSwitched = React.useRef(false);

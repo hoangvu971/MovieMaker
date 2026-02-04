@@ -43,11 +43,19 @@ function ScriptView({ projectId, project }) {
         },
     });
 
+    // Sync editor content when localScript or project changes
     useEffect(() => {
-        if (editor && localScript && editor.getHTML() !== localScript) {
-            editor.commands.setContent(localScript);
+        if (editor) {
+            // Always update the editor content when this effect runs
+            // This handles: initial mount, project switch, and script changes
+            const currentContent = editor.getHTML();
+            const targetContent = localScript || '';
+
+            if (currentContent !== targetContent) {
+                editor.commands.setContent(targetContent);
+            }
         }
-    }, [editor, localScript]);
+    }, [editor, localScript, project?.id]);
 
     // Update editor's editable state when hasScenes changes
     useEffect(() => {

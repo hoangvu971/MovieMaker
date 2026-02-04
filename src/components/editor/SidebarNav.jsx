@@ -7,7 +7,6 @@ function SidebarNav() {
 
     const tabs = [
         { id: EDITOR_TABS.SCRIPT, label: 'Script', icon: 'solar:document-text-linear' },
-        { id: EDITOR_TABS.IDEA, label: 'Story Idea', icon: 'solar:pen-new-square-linear' },
         { id: EDITOR_TABS.BREAKDOWN, label: 'Breakdown', icon: 'solar:list-check-linear' },
     ];
 

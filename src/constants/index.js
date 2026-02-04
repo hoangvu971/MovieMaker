@@ -16,7 +16,6 @@ export const SAVE_STATUS = {
 // Editor tabs
 export const EDITOR_TABS = {
     SCRIPT: 'script',
-    IDEA: 'idea',
     BREAKDOWN: 'breakdown',
 };
 

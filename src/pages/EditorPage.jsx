@@ -9,7 +9,6 @@ import EditorHeader from '../components/editor/EditorHeader';
 import SidebarNav from '../components/editor/SidebarNav';
 import SidebarPanel from '../components/editor/SidebarPanel';
 import ScriptView from '../components/editor/ScriptView';
-import StoryIdeaView from '../components/editor/StoryIdeaView';
 import ScreenplayView from '../components/editor/ScreenplayView';
 import LoadingView from '../components/editor/LoadingView';
 
@@ -59,7 +58,9 @@ function EditorPage() {
         }
     }, [project?.id, project?.screenplayScenes?.length, localScenes.length, setLocalScenes, setLocalName, setLocalScript, setSaveStatus]);
 
-    // Set current project ID and auto-switch tabs
+    // Set current project ID and auto-switch tabs (only on initial load)
+    const hasAutoSwitched = React.useRef(false);
+
     useEffect(() => {
         if (project) {
             setCurrentProjectId(project.id);
@@ -70,14 +71,13 @@ function EditorPage() {
                 setActiveSidebar('assets');
             }
 
-            // Auto-switch to appropriate tab based on project state
-            if (project.screenplayScenes?.length > 0 && activeTab === EDITOR_TABS.SCRIPT) {
+            // Auto-switch to appropriate tab based on project state (only on initial load)
+            if (!hasAutoSwitched.current && project.screenplayScenes?.length > 0 && activeTab === EDITOR_TABS.SCRIPT) {
                 setActiveTab(EDITOR_TABS.BREAKDOWN);
-            } else if (project.script && activeTab === EDITOR_TABS.SCRIPT) {
-                setActiveTab(EDITOR_TABS.IDEA);
+                hasAutoSwitched.current = true;
             }
         }
-    }, [project?.id, activeTab]);
+    }, [project?.id]);
 
     // Cleanup on unmount
     useEffect(() => {
@@ -153,12 +153,7 @@ function EditorPage() {
                     {/* Main Scrolling Area */}
                     <div className="relative z-10 flex-1 overflow-y-auto scroll-smooth">
                         {activeTab === EDITOR_TABS.SCRIPT && (
-                            <ScriptView projectId={projectId} />
-                        )}
-                        {activeTab === EDITOR_TABS.IDEA && (
-                            <StoryIdeaView
-                                project={project}
-                            />
+                            <ScriptView projectId={projectId} project={project} />
                         )}
                         {activeTab === EDITOR_TABS.BREAKDOWN && (
                             <ScreenplayView

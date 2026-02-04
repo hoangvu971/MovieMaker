@@ -164,6 +164,7 @@ app.delete('/api/assets/:id', (req, res) => {
 app.post('/api/projects/:id/generate-scenes', async (req, res) => {
   try {
     const { script } = req.body;
+    const projectId = req.params.id;
 
     if (!script || script.trim().length === 0) {
       return res.status(400).json({ error: 'Script content is required' });
@@ -180,8 +181,18 @@ app.post('/api/projects/:id/generate-scenes', async (req, res) => {
     // Generate scenes using AI
     const scenes = await aiService.generateScenes(script, settings.googleAiApiKey);
 
-    // Return generated scenes
-    res.json({ scenes });
+    // Save the generated scenes to the project
+    const updatedProject = store.updateProject(projectId, {
+      script,
+      screenplayScenes: scenes
+    });
+
+    if (!updatedProject) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    // Return the updated project with scenes
+    res.json(updatedProject);
   } catch (err) {
     console.error('AI generation error:', err);
     res.status(500).json({

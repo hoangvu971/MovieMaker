@@ -35,12 +35,16 @@ function EditorPage() {
         resetEditor,
     } = useEditorStore();
 
-    // Initialize editor when project loads (only once)
+    // Initialize editor when project loads and sync scenes when they're generated
     useEffect(() => {
         if (project) {
-            // Only initialize if we don't have local data yet
-            if (!localScenes.length && project.screenplayScenes?.length > 0) {
-                setLocalScenes(project.screenplayScenes);
+            // Sync scenes from project to local state when they change
+            // This handles both initial load and AI generation updates
+            if (project.screenplayScenes?.length > 0) {
+                // Only update if the scene count changed (new scenes generated or deleted)
+                if (project.screenplayScenes.length !== localScenes.length) {
+                    setLocalScenes(project.screenplayScenes);
+                }
             }
             if (!localName && project.name) {
                 setLocalName(project.name);
@@ -53,7 +57,7 @@ function EditorPage() {
                 setSaveStatus('saved');
             }
         }
-    }, [project?.id, setLocalScenes, setLocalName, setLocalScript, setSaveStatus]); // Only run when project ID changes
+    }, [project?.id, project?.screenplayScenes?.length, localScenes.length, setLocalScenes, setLocalName, setLocalScript, setSaveStatus]);
 
     // Set current project ID and auto-switch tabs
     useEffect(() => {

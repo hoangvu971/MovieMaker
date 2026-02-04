@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-function SceneBlock({ scene, index, onUpdate, onDelete, projectId }) {
+function SceneBlock({ scene, index, onUpdate, onDelete, onAddScene, projectId }) {
     const [showMenu, setShowMenu] = useState(false);
     const [content, setContent] = useState(scene.content || '');
     const [isDragOver, setIsDragOver] = useState(false);
@@ -149,6 +149,29 @@ function SceneBlock({ scene, index, onUpdate, onDelete, projectId }) {
                                 <div className="px-3 py-2 text-[10px] font-bold text-zinc-500 uppercase tracking-widest border-b border-zinc-800">
                                     Scene Actions
                                 </div>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowMenu(false);
+                                        onAddScene(index);
+                                    }}
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors text-left"
+                                >
+                                    <iconify-icon icon="solar:add-circle-linear" className="text-lg text-cyan-500"></iconify-icon>
+                                    <span>Add Scene Above</span>
+                                </button>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowMenu(false);
+                                        onAddScene(index + 1);
+                                    }}
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors text-left"
+                                >
+                                    <iconify-icon icon="solar:add-circle-linear" className="text-lg text-cyan-500"></iconify-icon>
+                                    <span>Add Scene Below</span>
+                                </button>
+                                <div className="border-t border-zinc-800"></div>
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();

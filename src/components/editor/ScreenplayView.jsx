@@ -19,7 +19,7 @@ import ConfirmDialog from '../common/ConfirmDialog';
 import { useToast } from '../common/ToastProvider';
 
 function ScreenplayView({ project }) {
-    const { localScenes, setLocalScenes, updateScene, deleteScene, reorderScenes } = useEditorStore();
+    const { localScenes, addScene, updateScene, deleteScene, reorderScenes } = useEditorStore();
     const { showToast } = useToast();
     const [deleteDialogState, setDeleteDialogState] = useState({ isOpen: false, sceneId: null, sceneIndex: null });
 
@@ -58,16 +58,8 @@ function ScreenplayView({ project }) {
         showToast('Scene deleted successfully', 'success');
     };
 
-    const handleAddScene = () => {
-        const newScene = {
-            id: `scene-${Date.now()}`,
-            order: localScenes.length,
-            content: '',
-            assets: [],
-        };
-        setLocalScenes([...localScenes, newScene]);
-        // Also need to set unsaved for manually adding scene via setLocalScenes
-        useEditorStore.getState().setSaveStatus('unsaved');
+    const handleAddScene = (index) => {
+        addScene(index);
     };
 
 
@@ -81,7 +73,7 @@ function ScreenplayView({ project }) {
                         Start by writing a script in the Script tab and generate scenes with AI, or add scenes manually.
                     </p>
                     <button
-                        onClick={handleAddScene}
+                        onClick={() => handleAddScene()}
                         className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-medium transition-colors"
                     >
                         <iconify-icon icon="solar:add-circle-linear" width="20"></iconify-icon>
@@ -120,6 +112,7 @@ function ScreenplayView({ project }) {
                                 index={index}
                                 onUpdate={handleSceneUpdate}
                                 onDelete={handleSceneDelete}
+                                onAddScene={handleAddScene}
                                 projectId={project.id}
                             />
                         ))}
@@ -130,7 +123,7 @@ function ScreenplayView({ project }) {
             {/* Add Scene Button at the bottom */}
             <div className="mt-8 pt-8 border-t border-zinc-900 flex justify-center">
                 <button
-                    onClick={handleAddScene}
+                    onClick={() => handleAddScene()}
                     className="flex items-center gap-2 px-6 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-800 transition-all hover:scale-[1.02] active:scale-95 group"
                 >
                     <iconify-icon

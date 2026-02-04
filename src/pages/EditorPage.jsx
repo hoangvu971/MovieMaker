@@ -40,8 +40,8 @@ function EditorPage() {
             // Sync scenes from project to local state when they change
             // This handles both initial load and AI generation updates
             if (project.screenplayScenes?.length > 0) {
-                // Only update if the scene count changed (new scenes generated or deleted)
-                if (project.screenplayScenes.length !== localScenes.length) {
+                // Only update from server if we don't have local unsaved changes
+                if (saveStatus === 'saved' && project.screenplayScenes.length !== localScenes.length) {
                     setLocalScenes(project.screenplayScenes);
                 }
             }

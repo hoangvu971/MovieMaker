@@ -43,6 +43,26 @@ export const useEditorStore = create((set, get) => ({
         localScenes: state.localScenes.filter((scene) => scene.id !== sceneId),
         saveStatus: 'unsaved',
     })),
+    addScene: (index) => set((state) => {
+        const newScene = {
+            id: `scene-${Date.now()}`,
+            content: '',
+            assets: [],
+        };
+
+        const newScenes = [...state.localScenes];
+        if (typeof index === 'number') {
+            newScenes.splice(index, 0, newScene);
+        } else {
+            newScenes.push(newScene);
+        }
+
+        // Re-calculate orders if necessary, though dnd-kit uses array index
+        return {
+            localScenes: newScenes,
+            saveStatus: 'unsaved'
+        };
+    }),
     reorderScenes: (scenes) => set({ localScenes: scenes, saveStatus: 'unsaved' }),
 
     // Reset editor state

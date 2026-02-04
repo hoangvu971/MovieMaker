@@ -74,6 +74,11 @@ app.post('/api/projects', (req, res) => {
 
 // API: Update project
 app.patch('/api/projects/:id', (req, res) => {
+  console.log(`[API] PATCH /api/projects/${req.params.id}`, {
+    hasOutput: !!req.body,
+    keys: Object.keys(req.body),
+    sceneCount: req.body.screenplayScenes?.length
+  });
   const updated = store.updateProject(req.params.id, req.body);
   if (!updated) return res.status(404).json({ error: 'Project not found' });
   res.json(updated);
@@ -181,10 +186,11 @@ app.post('/api/projects/:id/generate-scenes', async (req, res) => {
     // Generate scenes using AI
     const scenes = await aiService.generateScenes(script, settings.googleAiApiKey);
 
-    // Save the generated scenes to the project
+    // Save the generated scenes to the project and transition state
     const updatedProject = store.updateProject(projectId, {
       script,
-      screenplayScenes: scenes
+      screenplayScenes: scenes,
+      projectState: 'SCENES_GENERATED'
     });
 
     if (!updatedProject) {

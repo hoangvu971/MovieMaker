@@ -79,8 +79,12 @@ function SceneBlock({ scene, index, onUpdate, onDelete, onAddScene, projectId })
             const asset = JSON.parse(assetData);
 
             // Check if asset is already attached
+            console.log('[SceneBlock] Dropped asset:', asset);
             const isAlreadyAttached = sceneAssets.some(a => a.id === asset.id);
-            if (isAlreadyAttached) return;
+            if (isAlreadyAttached) {
+                console.log('[SceneBlock] Asset already attached, skipping');
+                return;
+            }
 
             // Add asset to scene
             const updatedAssets = [...sceneAssets, asset];

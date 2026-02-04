@@ -58,6 +58,12 @@ export function listScenesByProject(projectId) {
 export function updateProjectScenes(projectId, scenesData) {
     const db = getDb();
 
+    console.log(`[SceneStore] Updating scenes for project ${projectId}`, {
+        count: scenesData.length,
+        sampleId: scenesData[0]?.id,
+        sampleAssets: scenesData[0]?.assets?.length
+    });
+
     const updateTransaction = db.transaction((scenes) => {
         const now = new Date().toISOString();
 
@@ -98,17 +104,28 @@ export function updateProjectScenes(projectId, scenesData) {
             // Insert new links
             if (scene.assets && scene.assets.length > 0) {
                 // Removed asset_order column requirement, using unique index for safety
+                // We use INSERT instead of INSERT OR IGNORE to ensure we catch errors,
+                // and we provide a default asset_order of 0 for legacy schema compatibility.
                 const stmt = db.prepare(`
-          INSERT OR IGNORE INTO scene_assets (id, scene_id, asset_id)
-          VALUES (?, ?, ?)
+          INSERT INTO scene_assets (id, scene_id, asset_id, asset_order)
+          VALUES (?, ?, ?, ?)
         `);
 
                 scene.assets.forEach((asset) => {
                     // If asset object has only id, use it. If it's the full object, use .id
                     const assetId = asset.id || asset.assetId;
 
+                    if (!assetId) {
+                        console.warn(`[SceneStore] Skipping asset with no ID`, asset);
+                    }
+
                     if (assetId) {
-                        stmt.run(randomUUID(), sceneId, assetId);
+                        try {
+                            const order = asset.order !== undefined ? asset.order : 0;
+                            stmt.run(randomUUID(), sceneId, assetId, order);
+                        } catch (e) {
+                            console.error(`[SceneStore] Failed to link asset ${assetId} to scene ${sceneId}`, e);
+                        }
                     }
                 });
             }

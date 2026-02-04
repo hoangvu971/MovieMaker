@@ -34,6 +34,7 @@ function runMigrations(database) {
       assets TEXT DEFAULT '[]',
       shot_count INTEGER DEFAULT 0,
       status TEXT DEFAULT 'draft',
+      project_state TEXT DEFAULT 'NO_SCRIPT',
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
@@ -89,4 +90,29 @@ function runMigrations(database) {
       updated_at TEXT NOT NULL
     );
   `);
+
+  // Migration: Add project_state column to existing projects table
+  try {
+    // Check if column exists
+    const columns = database.pragma('table_info(projects)');
+    const hasProjectState = columns.some(col => col.name === 'project_state');
+
+    if (!hasProjectState) {
+      console.log('Running migration: Adding project_state column...');
+      database.exec(`
+        ALTER TABLE projects ADD COLUMN project_state TEXT DEFAULT 'NO_SCRIPT';
+      `);
+
+      // Backfill existing projects with scenes to SCENES_GENERATED
+      database.exec(`
+        UPDATE projects 
+        SET project_state = 'SCENES_GENERATED' 
+        WHERE (screenplay_scenes IS NOT NULL AND screenplay_scenes != '[]')
+           OR EXISTS (SELECT 1 FROM scenes WHERE scenes.project_id = projects.id);
+      `);
+      console.log('Migration complete: project_state column added and backfilled');
+    }
+  } catch (err) {
+    console.error('Migration error:', err);
+  }
 }

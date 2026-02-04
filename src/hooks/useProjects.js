@@ -1,5 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as api from '../api/client';
+import { useEditorStore } from '../store/editorStore';
+import { PROJECT_STATES } from '../constants';
 
 // Query keys for caching
 export const projectKeys = {
@@ -90,9 +92,21 @@ export function useGenerateScenes() {
 
     return useMutation({
         mutationFn: ({ projectId, script }) => api.generateScenes(projectId, script),
-        onSuccess: (_, variables) => {
-            // Invalidate project to refetch with new scenes
-            queryClient.invalidateQueries({ queryKey: projectKeys.detail(variables.projectId) });
+        onSuccess: (updatedProject, variables) => {
+            // Update cache with server response
+            queryClient.setQueryData(projectKeys.detail(variables.projectId), updatedProject);
+
+            // Update local state and transition to SCENES_GENERATED
+            const { setLocalScenes, setSaveStatus, setProjectState } = useEditorStore.getState();
+            if (updatedProject.screenplayScenes) {
+                setLocalScenes(updatedProject.screenplayScenes);
+            }
+
+            // Transition project state (server already saved, so this is just local sync)
+            setProjectState(PROJECT_STATES.SCENES_GENERATED);
+
+            // Mark as saved (auto-save already happened on server)
+            setSaveStatus('saved');
         },
     });
 }

@@ -24,3 +24,11 @@ export const SIDEBAR_PANELS = {
     ASSETS: 'assets',
     API: 'api',
 };
+
+// Project states
+export const PROJECT_STATES = {
+    NO_SCRIPT: 'NO_SCRIPT',
+    SCENES_GENERATED: 'SCENES_GENERATED',
+    SHOTLIST_GENERATED: 'SHOTLIST_GENERATED',
+    STORYBOARD_GENERATED: 'STORYBOARD_GENERATED',
+};

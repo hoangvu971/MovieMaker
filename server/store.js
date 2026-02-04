@@ -19,6 +19,7 @@ function rowToProject(row) {
     assets,
     shotCount: row.shot_count ?? 0,
     status: row.status ?? 'draft',
+    projectState: row.project_state ?? 'NO_SCRIPT',
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -28,7 +29,7 @@ export function listProjects() {
   const db = getDb();
   const rows = db
     .prepare(
-      `SELECT id, name, updated_at, created_at, shot_count, status
+      `SELECT id, name, updated_at, created_at, shot_count, status, project_state
        FROM projects
        ORDER BY updated_at DESC`
     )
@@ -40,6 +41,7 @@ export function listProjects() {
     createdAt: row.created_at,
     shotCount: row.shot_count ?? 0,
     status: row.status ?? 'draft',
+    projectState: row.project_state ?? 'NO_SCRIPT',
   }));
 }
 
@@ -71,11 +73,12 @@ export function createProject(attrs = {}) {
   const assets = JSON.stringify([]); // Legacy assets column
   const shotCount = attrs.shotCount ?? 0;
   const status = attrs.status ?? 'draft';
+  const projectState = attrs.projectState ?? 'NO_SCRIPT';
 
   db.prepare(
-    `INSERT INTO projects (id, name, script, screenplay_scenes, assets, shot_count, status, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
-  ).run(id, name, script, screenplayScenes, assets, shotCount, status, now, now);
+    `INSERT INTO projects (id, name, script, screenplay_scenes, assets, shot_count, status, project_state, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  ).run(id, name, script, screenplayScenes, assets, shotCount, status, projectState, now, now);
 
   // If initial scenes provided, create them
   if (attrs.screenplayScenes && attrs.screenplayScenes.length > 0) {
@@ -102,12 +105,13 @@ export function updateProject(id, attrs) {
   const script = attrs.script !== undefined ? attrs.script : existing.script;
   const shotCount = attrs.shotCount !== undefined ? attrs.shotCount : existing.shotCount;
   const status = attrs.status !== undefined ? attrs.status : existing.status;
+  const projectState = attrs.projectState !== undefined ? attrs.projectState : existing.projectState;
 
   db.prepare(
     `UPDATE projects
-     SET name = ?, script = ?, shot_count = ?, status = ?, updated_at = ?
+     SET name = ?, script = ?, shot_count = ?, status = ?, project_state = ?, updated_at = ?
      WHERE id = ?`
-  ).run(name, script, shotCount, status, now, id);
+  ).run(name, script, shotCount, status, projectState, now, id);
 
   return getProject(id);
 }

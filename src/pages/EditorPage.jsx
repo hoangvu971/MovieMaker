@@ -31,32 +31,32 @@ function EditorPage() {
         setLocalScenes,
         saveStatus,
         setSaveStatus,
+        projectState,
+        setProjectState,
         resetEditor,
     } = useEditorStore();
 
-    // Initialize editor when project loads and sync scenes when they're generated
+    // Initialize editor when project loads - ONCE on mount
     useEffect(() => {
-        if (project) {
-            // Sync scenes from project to local state when they change
-            // This handles both initial load and AI generation updates
-            if (project.screenplayScenes?.length > 0) {
-                // Only update from server if we don't have local unsaved changes
-                if (saveStatus === 'saved' && project.screenplayScenes.length !== localScenes.length) {
-                    setLocalScenes(project.screenplayScenes);
-                }
-            }
-            if (!localName && project.name) {
+        if (project && !localName) {
+            // First load - sync from server WITHOUT triggering unsaved state
+            if (project.name) {
                 setLocalName(project.name);
-                // setLocalName by default sets state to unsaved, so we force it back to saved
-                setSaveStatus('saved');
             }
-            if (!localScript && project.script) {
+            if (project.script) {
                 setLocalScript(project.script);
-                // setLocalScript by default sets state to unsaved, so we force it back to saved
-                setSaveStatus('saved');
             }
+            if (project.screenplayScenes?.length > 0) {
+                setLocalScenes(project.screenplayScenes);
+            }
+            if (project.projectState) {
+                setProjectState(project.projectState);
+            }
+
+            // Mark as saved after initialization
+            setSaveStatus('saved');
         }
-    }, [project?.id, project?.screenplayScenes?.length, localScenes.length, setLocalScenes, setLocalName, setLocalScript, setSaveStatus]);
+    }, [project?.id]); // Only depend on project ID
 
     // Set current project ID and auto-switch tabs (only on initial load)
     const hasAutoSwitched = React.useRef(false);
@@ -93,15 +93,25 @@ function EditorPage() {
             const data = {
                 name: localName,
                 script: localScript,
-                screenplayScenes: localScenes,
+                screenplayScenes: localScenes.map((scene, index) => ({
+                    ...scene,
+                    order: index
+                })),
+                projectState,
             };
-            await updateProject.mutateAsync({ id: projectId, data });
+            const updatedProject = await updateProject.mutateAsync({ id: projectId, data });
+
+            // Sync scene IDs from server (temp- IDs will have been replaced with UUIDs)
+            if (updatedProject.screenplayScenes) {
+                setLocalScenes(updatedProject.screenplayScenes);
+            }
+
             setSaveStatus('saved');
         } catch (error) {
             console.error('Save failed:', error);
             setSaveStatus('unsaved');
         }
-    }, [projectId, localName, localScript, localScenes, updateProject, setSaveStatus]);
+    }, [projectId, localName, localScript, localScenes, projectState, updateProject, setSaveStatus, setLocalScenes]);
 
     if (isLoading) {
         return (

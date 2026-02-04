@@ -11,9 +11,11 @@ import { useToast } from '../common/ToastProvider';
 
 function ScriptView({ projectId, project }) {
     const navigate = useNavigate();
-    const { localScript, setLocalScript, setActiveTab } = useEditorStore();
+    const { localScript, setLocalScript, setActiveTab, setSaveStatus } = useEditorStore();
     const generateScenes = useGenerateScenes();
     const { showToast } = useToast();
+
+    const hasScenes = project?.screenplayScenes && project.screenplayScenes.length > 0;
 
     const editor = useEditor({
         extensions: [
@@ -24,11 +26,20 @@ function ScriptView({ projectId, project }) {
             }),
         ],
         content: localScript || '',
-        editable: false, // Make editor read-only
+        editable: !hasScenes,
         editorProps: {
             attributes: {
                 class: 'prose prose-invert max-w-none focus:outline-none min-h-[500px] text-zinc-300 px-4 py-3',
             },
+        },
+        onUpdate: ({ editor }) => {
+            const html = editor.getHTML();
+            setLocalScript(html);
+
+            // Mark as unsaved when user edits script
+            if (html !== project?.script) {
+                setSaveStatus('unsaved');
+            }
         },
     });
 
@@ -37,6 +48,13 @@ function ScriptView({ projectId, project }) {
             editor.commands.setContent(localScript);
         }
     }, [editor, localScript]);
+
+    // Update editor's editable state when hasScenes changes
+    useEffect(() => {
+        if (editor) {
+            editor.setEditable(!hasScenes);
+        }
+    }, [editor, hasScenes, project?.screenplayScenes]);
 
     const handleStartGeneration = async () => {
         if (!editor) return;
@@ -69,7 +87,6 @@ function ScriptView({ projectId, project }) {
         });
     };
 
-    const hasScenes = project?.screenplayScenes && project.screenplayScenes.length > 0;
 
     return (
         <div className="max-w-4xl mx-auto px-8 py-12">
@@ -78,7 +95,7 @@ function ScriptView({ projectId, project }) {
                 <div>
                     <h2 className="text-2xl font-semibold text-white mb-2">Script</h2>
                     <p className="text-zinc-400">
-                        View your uploaded script (read-only)
+                        {hasScenes ? 'View your script (read-only)' : 'Write or edit your script'}
                     </p>
                 </div>
                 <button

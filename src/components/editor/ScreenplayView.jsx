@@ -19,7 +19,7 @@ import ConfirmDialog from '../common/ConfirmDialog';
 import { useToast } from '../common/ToastProvider';
 
 function ScreenplayView({ project }) {
-    const { localScenes, addScene, updateScene, deleteScene, reorderScenes } = useEditorStore();
+    const { localScenes, addScene, updateScene, deleteScene, reorderScenes, setSaveStatus } = useEditorStore();
     const { showToast } = useToast();
     const [deleteDialogState, setDeleteDialogState] = useState({ isOpen: false, sceneId: null, sceneIndex: null });
 
@@ -39,11 +39,13 @@ function ScreenplayView({ project }) {
 
             const reordered = arrayMove(localScenes, oldIndex, newIndex);
             reorderScenes(reordered);
+            setSaveStatus('unsaved');
         }
     };
 
     const handleSceneUpdate = (sceneId, updates) => {
         updateScene(sceneId, updates);
+        setSaveStatus('unsaved');
     };
 
     const handleSceneDelete = (sceneId) => {
@@ -54,12 +56,14 @@ function ScreenplayView({ project }) {
     const confirmSceneDelete = () => {
         const { sceneId } = deleteDialogState;
         deleteScene(sceneId);
+        setSaveStatus('unsaved');
         setDeleteDialogState({ isOpen: false, sceneId: null, sceneIndex: null });
         showToast('Scene deleted successfully', 'success');
     };
 
     const handleAddScene = (index) => {
         addScene(index);
+        setSaveStatus('unsaved');
     };
 
 

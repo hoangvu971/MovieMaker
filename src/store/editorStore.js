@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { PROJECT_STATES } from '../constants';
 
 /**
  * Zustand store for editor UI state
@@ -9,18 +10,22 @@ export const useEditorStore = create((set, get) => ({
     currentProjectId: null,
     setCurrentProjectId: (id) => set({ currentProjectId: id }),
 
+    // Project state (NO_SCRIPT, SCENES_GENERATED, SHOTLIST_GENERATED, STORYBOARD_GENERATED)
+    projectState: PROJECT_STATES.NO_SCRIPT,
+    setProjectState: (state) => set({ projectState: state }),
+
     // Local project data (modified before syncing to server)
     localName: '',
-    setLocalName: (name) => set({ localName: name, saveStatus: 'unsaved' }),
+    setLocalName: (name) => set({ localName: name }),
     localScript: '',
-    setLocalScript: (script) => set({ localScript: script, saveStatus: 'unsaved' }),
+    setLocalScript: (script) => set({ localScript: script }),
 
     // Active tab in editor ('script' | 'idea' | 'breakdown')
     activeTab: 'script',
     setActiveTab: (tab) => set({ activeTab: tab }),
 
     // Active sidebar ('assets' | 'api' | null)
-    activeSidebar: null,
+    activeSidebar: 'assets',
     setActiveSidebar: (sidebar) => set({ activeSidebar: sidebar }),
     toggleSidebar: (sidebar) => set((state) => ({
         activeSidebar: state.activeSidebar === sidebar ? null : sidebar,
@@ -37,15 +42,13 @@ export const useEditorStore = create((set, get) => ({
         localScenes: state.localScenes.map((scene) =>
             scene.id === sceneId ? { ...scene, ...updates } : scene
         ),
-        saveStatus: 'unsaved',
     })),
     deleteScene: (sceneId) => set((state) => ({
         localScenes: state.localScenes.filter((scene) => scene.id !== sceneId),
-        saveStatus: 'unsaved',
     })),
     addScene: (index) => set((state) => {
         const newScene = {
-            id: `scene-${Date.now()}`,
+            id: `temp-${Date.now()}`,  // Use temp- prefix so backend generates proper UUID
             content: '',
             assets: [],
         };
@@ -57,17 +60,16 @@ export const useEditorStore = create((set, get) => ({
             newScenes.push(newScene);
         }
 
-        // Re-calculate orders if necessary, though dnd-kit uses array index
         return {
             localScenes: newScenes,
-            saveStatus: 'unsaved'
         };
     }),
-    reorderScenes: (scenes) => set({ localScenes: scenes, saveStatus: 'unsaved' }),
+    reorderScenes: (scenes) => set({ localScenes: scenes }),
 
     // Reset editor state
     resetEditor: () => set({
         currentProjectId: null,
+        projectState: PROJECT_STATES.NO_SCRIPT,
         localName: '',
         localScript: '',
         activeTab: 'script',

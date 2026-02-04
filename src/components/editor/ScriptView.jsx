@@ -7,11 +7,13 @@ import Underline from '@tiptap/extension-underline';
 import { useEditorStore } from '../../store/editorStore';
 import { useGenerateScenes } from '../../hooks/useProjects';
 import { EDITOR_TABS } from '../../constants';
+import { useToast } from '../common/ToastProvider';
 
 function ScriptView({ projectId, project }) {
     const navigate = useNavigate();
     const { localScript, setLocalScript, setActiveTab } = useEditorStore();
     const generateScenes = useGenerateScenes();
+    const { showToast } = useToast();
 
     const editor = useEditor({
         extensions: [
@@ -56,16 +58,41 @@ function ScriptView({ projectId, project }) {
         }
     };
 
+    const handleCopy = () => {
+        if (!editor) return;
+        const text = editor.getText();
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Script copied to clipboard', 'success');
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            showToast('Failed to copy script', 'error');
+        });
+    };
+
     const hasScenes = project?.screenplayScenes && project.screenplayScenes.length > 0;
 
     return (
         <div className="max-w-4xl mx-auto px-8 py-12">
             {/* Header */}
-            <div className="mb-8">
-                <h2 className="text-2xl font-semibold text-white mb-2">Script</h2>
-                <p className="text-zinc-400">
-                    View your uploaded script (read-only)
-                </p>
+            <div className="mb-8 flex items-center justify-between">
+                <div>
+                    <h2 className="text-2xl font-semibold text-white mb-2">Script</h2>
+                    <p className="text-zinc-400">
+                        View your uploaded script (read-only)
+                    </p>
+                </div>
+                <button
+                    onClick={handleCopy}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700 transition-all text-sm font-medium group"
+                    title="Copy script to clipboard"
+                >
+                    <iconify-icon
+                        icon="solar:copy-linear"
+                        width="18"
+                        className="group-hover:scale-110 transition-transform"
+                    ></iconify-icon>
+                    <span>Copy Script</span>
+                </button>
             </div>
 
             {/* Editor Container */}

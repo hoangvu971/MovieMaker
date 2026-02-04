@@ -82,6 +82,43 @@ function runMigrations(database) {
     -- Ensure unique asset per scene (if we want to enforce no duplicates)
     CREATE UNIQUE INDEX IF NOT EXISTS idx_scene_assets_unique ON scene_assets(scene_id, asset_id);
 
+    -- Shots table: individual shots within a scene
+    CREATE TABLE IF NOT EXISTS shots (
+      id TEXT PRIMARY KEY,
+      scene_id TEXT NOT NULL,
+      shot_order INTEGER NOT NULL,
+      content TEXT DEFAULT '',
+      description TEXT DEFAULT '',
+      dialogue TEXT DEFAULT '',
+      ert TEXT DEFAULT '',
+      size TEXT DEFAULT '',
+      perspective TEXT DEFAULT '',
+      movement TEXT DEFAULT '',
+      equipment TEXT DEFAULT '',
+      focal_length TEXT DEFAULT '',
+      aspect_ratio TEXT DEFAULT '',
+      notes TEXT DEFAULT '',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (scene_id) REFERENCES scenes(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_shots_scene_id ON shots(scene_id);
+    CREATE INDEX IF NOT EXISTS idx_shots_order ON shots(scene_id, shot_order);
+
+    -- Shot assets table: links shots to assets (subset of scene assets)
+    CREATE TABLE IF NOT EXISTS shot_assets (
+      id TEXT PRIMARY KEY,
+      shot_id TEXT NOT NULL,
+      asset_id TEXT NOT NULL,
+      asset_order INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY (shot_id) REFERENCES shots(id) ON DELETE CASCADE,
+      FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_shot_assets_shot_id ON shot_assets(shot_id);
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_shot_assets_unique ON shot_assets(shot_id, asset_id);
+
     -- API settings table (global settings, not per-project)
     CREATE TABLE IF NOT EXISTS api_settings (
       id TEXT PRIMARY KEY DEFAULT 'default',

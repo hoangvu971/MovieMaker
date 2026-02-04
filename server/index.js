@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import multer from 'multer';
 import * as store from './store.js';
 import * as assetStore from './assetStore.js';
+import * as shotStore from './shotStore.js';
 import * as aiService from './aiService.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -163,6 +164,71 @@ app.delete('/api/assets/:id', (req, res) => {
   const deleted = assetStore.deleteAsset(req.params.id);
   if (!deleted) return res.status(404).json({ error: 'Asset not found' });
   res.status(204).send();
+});
+
+// ============ SHOT ENDPOINTS ============
+
+// API: List shots for a scene
+app.get('/api/scenes/:sceneId/shots', (req, res) => {
+  try {
+    const shots = shotStore.listShotsByScene(req.params.sceneId);
+    res.json(shots);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to list shots' });
+  }
+});
+
+// API: Get single shot
+app.get('/api/shots/:id', (req, res) => {
+  const shot = shotStore.getShot(req.params.id);
+  if (!shot) return res.status(404).json({ error: 'Shot not found' });
+  res.json(shot);
+});
+
+// API: Bulk create/update shots for a scene
+app.post('/api/scenes/:sceneId/shots', (req, res) => {
+  try {
+    const shotsData = req.body;
+    if (!Array.isArray(shotsData)) {
+      return res.status(400).json({ error: 'Request body must be an array of shots' });
+    }
+    const shots = shotStore.updateSceneShots(req.params.sceneId, shotsData);
+    res.json(shots);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update shots' });
+  }
+});
+
+// API: Update shot properties
+app.patch('/api/shots/:id', (req, res) => {
+  const updated = shotStore.updateShotProperties(req.params.id, req.body);
+  if (!updated) return res.status(404).json({ error: 'Shot not found' });
+  res.json(updated);
+});
+
+// API: Delete shot
+app.delete('/api/shots/:id', (req, res) => {
+  const deleted = shotStore.deleteShot(req.params.id);
+  if (!deleted) return res.status(404).json({ error: 'Shot not found' });
+  res.status(204).send();
+});
+
+// API: Update shot assets
+app.put('/api/shots/:id/assets', (req, res) => {
+  try {
+    const { assetIds } = req.body;
+    if (!Array.isArray(assetIds)) {
+      return res.status(400).json({ error: 'assetIds must be an array' });
+    }
+    const shot = shotStore.updateShotAssets(req.params.id, assetIds);
+    if (!shot) return res.status(404).json({ error: 'Shot not found' });
+    res.json(shot);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update shot assets' });
+  }
 });
 
 // API: Generate scenes from script using AI

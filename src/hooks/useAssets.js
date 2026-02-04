@@ -36,6 +36,23 @@ export function useUploadAssets() {
 }
 
 /**
+ * Update an asset's metadata (e.g., name)
+ */
+export function useUpdateAsset() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ assetId, data }) => api.updateAsset(assetId, data),
+        onSuccess: () => {
+            // Invalidate all asset queries to refresh the UI
+            queryClient.invalidateQueries({ queryKey: assetKeys.all });
+            // Also invalidate projects to update any cached project data
+            queryClient.invalidateQueries({ queryKey: ['projects'] });
+        },
+    });
+}
+
+/**
  * Delete an asset
  */
 export function useDeleteAsset() {

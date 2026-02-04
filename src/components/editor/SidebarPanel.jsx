@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useEditorStore } from '../../store/editorStore';
-import { useProjectAssets, useUploadAssets, useDeleteAsset } from '../../hooks/useAssets';
+import { useProjectAssets, useUploadAssets, useDeleteAsset, useUpdateAsset } from '../../hooks/useAssets';
 import { SIDEBAR_PANELS } from '../../constants';
 import ApiSettingsModal from '../home/ApiSettingsModal';
 import ConfirmDialog from '../common/ConfirmDialog';
@@ -11,11 +11,22 @@ function SidebarPanel({ projectId }) {
     const { data: assets = [], isLoading } = useProjectAssets(projectId);
     const uploadAssets = useUploadAssets();
     const deleteAsset = useDeleteAsset();
+    const updateAsset = useUpdateAsset();
     const { showToast } = useToast();
 
     const [isDragging, setIsDragging] = useState(false);
     const [deleteDialogState, setDeleteDialogState] = useState({ isOpen: false, assetId: null, assetName: '' });
+    const [renameState, setRenameState] = useState({ assetId: null, name: '' });
     const fileInputRef = useRef(null);
+    const renameInputRef = useRef(null);
+
+    // Focus rename input when it appears
+    useEffect(() => {
+        if (renameState.assetId && renameInputRef.current) {
+            renameInputRef.current.focus();
+            renameInputRef.current.select();
+        }
+    }, [renameState.assetId]);
 
     const handleFileSelect = async (files) => {
         if (!files || files.length === 0) return;
@@ -40,6 +51,37 @@ function SidebarPanel({ projectId }) {
 
     const handleDelete = (assetId, assetName) => {
         setDeleteDialogState({ isOpen: true, assetId, assetName });
+    };
+
+    const handleRename = (asset) => {
+        setRenameState({ assetId: asset.id, name: asset.name });
+    };
+
+    const submitRename = async () => {
+        if (!renameState.assetId) return;
+
+        const oldAsset = assets.find(a => a.id === renameState.assetId);
+        if (oldAsset && oldAsset.name === renameState.name.trim()) {
+            setRenameState({ assetId: null, name: '' });
+            return;
+        }
+
+        if (!renameState.name.trim()) {
+            showToast('Asset name cannot be empty', 'error');
+            return;
+        }
+
+        try {
+            await updateAsset.mutateAsync({
+                assetId: renameState.assetId,
+                data: { name: renameState.name.trim() }
+            });
+            showToast('Asset renamed successfully', 'success');
+            setRenameState({ assetId: null, name: '' });
+        } catch (error) {
+            console.error('Rename failed:', error);
+            showToast('Failed to rename asset', 'error');
+        }
     };
 
     const confirmDelete = async () => {
@@ -145,8 +187,12 @@ function SidebarPanel({ projectId }) {
                                             key={asset.id}
                                             className="asset-card aspect-square bg-zinc-800 rounded-lg border border-zinc-700 overflow-hidden relative group cursor-grab active:cursor-grabbing"
                                             data-id={asset.id}
-                                            draggable="true"
+                                            draggable={!renameState.assetId}
                                             onDragStart={(e) => {
+                                                if (renameState.assetId) {
+                                                    e.preventDefault();
+                                                    return;
+                                                }
                                                 // Send asset data with drag event
                                                 e.dataTransfer.effectAllowed = 'copy';
                                                 e.dataTransfer.setData('application/json', JSON.stringify(asset));
@@ -173,20 +219,52 @@ function SidebarPanel({ projectId }) {
                                                 alt={asset.name}
                                                 draggable="false"
                                             />
-                                            <div className="absolute bottom-0 inset-x-0 bg-black/60 p-1.5 pointer-events-none">
-                                                <p className="text-[10px] text-white truncate">{asset.name}</p>
+                                            {/* Name / Rename Overlay */}
+                                            <div className="absolute bottom-0 inset-x-0 bg-black/60 p-1.5 min-h-[32px] flex items-center">
+                                                {renameState.assetId === asset.id ? (
+                                                    <input
+                                                        ref={renameInputRef}
+                                                        type="text"
+                                                        value={renameState.name}
+                                                        onChange={(e) => setRenameState(prev => ({ ...prev, name: e.target.value }))}
+                                                        onBlur={submitRename}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') submitRename();
+                                                            if (e.key === 'Escape') setRenameState({ assetId: null, name: '' });
+                                                        }}
+                                                        className="w-full bg-zinc-950 border border-cyan-500 rounded px-1.5 py-0.5 text-[10px] text-white focus:outline-none"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                ) : (
+                                                    <p className="text-[10px] text-white truncate w-full">{asset.name}</p>
+                                                )}
                                             </div>
-                                            <button
-                                                type="button"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleDelete(asset.id, asset.name);
-                                                }}
-                                                className="absolute top-1 right-1 w-5 h-5 bg-red-500/80 hover:bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                                title="Delete Asset"
-                                            >
-                                                <iconify-icon icon="solar:trash-bin-trash-linear" width="12"></iconify-icon>
-                                            </button>
+
+                                            {/* Action Buttons */}
+                                            <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleRename(asset);
+                                                    }}
+                                                    className="w-5 h-5 bg-zinc-800/80 hover:bg-zinc-700 text-white rounded-full flex items-center justify-center border border-zinc-700 shadow-lg"
+                                                    title="Rename Asset"
+                                                >
+                                                    <iconify-icon icon="solar:pen-new-square-linear" width="12"></iconify-icon>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDelete(asset.id, asset.name);
+                                                    }}
+                                                    className="w-5 h-5 bg-red-500/80 hover:bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg"
+                                                    title="Delete Asset"
+                                                >
+                                                    <iconify-icon icon="solar:trash-bin-trash-linear" width="12"></iconify-icon>
+                                                </button>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>

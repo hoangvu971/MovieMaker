@@ -87,6 +87,13 @@ export async function uploadAssets(projectId, formData) {
     return response.json();
 }
 
+export async function updateAsset(id, data) {
+    return apiFetch(`/api/assets/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    });
+}
+
 export async function deleteAsset(id) {
     return apiFetch(`/api/assets/${encodeURIComponent(id)}`, {
         method: 'DELETE',

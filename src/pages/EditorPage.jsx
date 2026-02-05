@@ -10,6 +10,7 @@ import SidebarNav from '../components/editor/SidebarNav';
 import SidebarPanel from '../components/editor/SidebarPanel';
 import ScriptView from '../components/editor/ScriptView';
 import ScreenplayView from '../components/editor/ScreenplayView';
+import ShotlistView from '../components/editor/ShotlistView';
 import LoadingView from '../components/editor/LoadingView';
 
 function EditorPage() {
@@ -171,6 +172,11 @@ function EditorPage() {
                         )}
                         {activeTab === EDITOR_TABS.BREAKDOWN && (
                             <ScreenplayView
+                                project={project}
+                            />
+                        )}
+                        {activeTab === EDITOR_TABS.SHOTLIST && (
+                            <ShotlistView
                                 project={project}
                             />
                         )}

@@ -17,6 +17,7 @@ export const SAVE_STATUS = {
 export const EDITOR_TABS = {
     SCRIPT: 'script',
     BREAKDOWN: 'breakdown',
+    SHOTLIST: 'shotlist',
 };
 
 // Sidebar panels

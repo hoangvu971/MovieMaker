@@ -125,3 +125,36 @@ export async function saveApiSettings(googleAiApiKey) {
 export async function getApiKey() {
     return apiFetch('/api/settings/api/key');
 }
+
+// ========== SHOT API ==========
+
+export async function listSceneShots(sceneId) {
+    return apiFetch(`/api/scenes/${encodeURIComponent(sceneId)}/shots`);
+}
+
+export async function createSceneShots(sceneId, shots) {
+    return apiFetch(`/api/scenes/${encodeURIComponent(sceneId)}/shots`, {
+        method: 'POST',
+        body: JSON.stringify(shots),
+    });
+}
+
+export async function updateShot(shotId, data) {
+    return apiFetch(`/api/shots/${encodeURIComponent(shotId)}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    });
+}
+
+export async function deleteShot(shotId) {
+    return apiFetch(`/api/shots/${encodeURIComponent(shotId)}`, {
+        method: 'DELETE',
+    });
+}
+
+export async function updateShotAssets(shotId, assetIds) {
+    return apiFetch(`/api/shots/${encodeURIComponent(shotId)}/assets`, {
+        method: 'PUT',
+        body: JSON.stringify({ assetIds }),
+    });
+}

@@ -25,7 +25,7 @@ function ScriptView({ projectId, project }) {
                 types: ['heading', 'paragraph'],
             }),
         ],
-        content: localScript || '',
+        content: hasScenes ? (project?.script || '') : (localScript || ''),
         editable: !hasScenes,
         editorProps: {
             attributes: {
@@ -33,6 +33,10 @@ function ScriptView({ projectId, project }) {
             },
         },
         onUpdate: ({ editor }) => {
+            // If scenes exist, we are in read-only mode regarding the script source
+            // So we don't update localScript or trigger save status
+            if (hasScenes) return;
+
             const html = editor.getHTML();
             setLocalScript(html);
 
@@ -49,13 +53,14 @@ function ScriptView({ projectId, project }) {
             // Always update the editor content when this effect runs
             // This handles: initial mount, project switch, and script changes
             const currentContent = editor.getHTML();
-            const targetContent = localScript || '';
+            // Determine target content based on mode
+            const targetContent = hasScenes ? (project?.script || '') : (localScript || '');
 
             if (currentContent !== targetContent) {
                 editor.commands.setContent(targetContent);
             }
         }
-    }, [editor, localScript, project?.id]);
+    }, [editor, localScript, project?.id, hasScenes, project?.script]);
 
     // Update editor's editable state when hasScenes changes
     useEffect(() => {

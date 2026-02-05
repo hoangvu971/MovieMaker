@@ -7,11 +7,15 @@ import multer from 'multer';
 import * as store from './store.js';
 import * as assetStore from './assetStore.js';
 import * as shotStore from './shotStore.js';
-import * as aiService from './aiService.js';
+import * as characterStore from './characterStore.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// ... (existing imports and setup)
+
+
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -231,6 +235,53 @@ app.put('/api/shots/:id/assets', (req, res) => {
   }
 });
 
+// ============ CHARACTER ENDPOINTS ============
+
+// API: List characters for a project
+app.get('/api/projects/:projectId/characters', (req, res) => {
+  try {
+    const characters = characterStore.listCharactersByProject(req.params.projectId);
+    res.json(characters);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to list characters' });
+  }
+});
+
+// API: Create character
+app.post('/api/projects/:projectId/characters', (req, res) => {
+  try {
+    const character = characterStore.createCharacter({
+      ...req.body,
+      projectId: req.params.projectId
+    });
+    res.status(201).json(character);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message || 'Failed to create character' });
+  }
+});
+
+// API: Update character
+app.patch('/api/characters/:id', (req, res) => {
+  try {
+    const updated = characterStore.updateCharacter(req.params.id, req.body);
+    if (!updated) return res.status(404).json({ error: 'Character not found' });
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update character' });
+  }
+});
+
+// API: Delete character
+app.delete('/api/characters/:id', (req, res) => {
+  const deleted = characterStore.deleteCharacter(req.params.id);
+  if (!deleted) return res.status(404).json({ error: 'Character not found' });
+  res.status(204).send();
+});
+
+
 // API: Generate scenes from script using AI
 app.post('/api/projects/:id/generate-scenes', async (req, res) => {
   try {
@@ -249,10 +300,21 @@ app.post('/api/projects/:id/generate-scenes', async (req, res) => {
       });
     }
 
-    // Generate scenes using AI
-    const scenes = await aiService.generateScenes(script, settings.googleAiApiKey);
+    // Generate scenes and characters using AI
+    const result = await aiService.generateScenes(script, settings.googleAiApiKey);
 
-    // Save the generated scenes to the project and transition state
+    // result should be { scenes: [], characters: [] } but gracefully handle array (if only scenes)
+    let scenes = [];
+    let characters = [];
+
+    if (Array.isArray(result)) {
+      scenes = result;
+    } else {
+      scenes = result.scenes || [];
+      characters = result.characters || [];
+    }
+
+    // Save the generated scenes and transitions state
     const updatedProject = store.updateProject(projectId, {
       script,
       screenplayScenes: scenes,
@@ -261,6 +323,11 @@ app.post('/api/projects/:id/generate-scenes', async (req, res) => {
 
     if (!updatedProject) {
       return res.status(404).json({ error: 'Project not found' });
+    }
+
+    // Save characters if any
+    if (characters.length > 0) {
+      characterStore.createCharactersBulk(projectId, characters);
     }
 
     // Return the updated project with scenes

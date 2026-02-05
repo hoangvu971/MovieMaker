@@ -32,9 +32,9 @@ export async function generateScenes(script, apiKey) {
         const text = response.text();
 
         // Parse JSON response
-        let scenes;
+        let parsedData;
         try {
-            // More robust JSON extraction: find first [ and last ]
+            // More robust JSON extraction: find first { and last }
             let jsonText = text.trim();
 
             // Try to extract from markdown first
@@ -42,9 +42,9 @@ export async function generateScenes(script, apiKey) {
             if (markdownMatch) {
                 jsonText = markdownMatch[1].trim();
             } else {
-                // If no markdown, find the first '[' and last ']'
-                const startIdx = text.indexOf('[');
-                const endIdx = text.lastIndexOf(']');
+                // If no markdown, find the first '{' and last '}' (since we expect an object now)
+                const startIdx = text.indexOf('{');
+                const endIdx = text.lastIndexOf('}');
 
                 if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
                     jsonText = text.substring(startIdx, endIdx + 1);
@@ -52,19 +52,27 @@ export async function generateScenes(script, apiKey) {
             }
 
             try {
-                scenes = JSON.parse(jsonText);
+                parsedData = JSON.parse(jsonText);
             } catch (initialError) {
                 // Fallback: AI often forgets to escape internal double quotes
                 // Try to manually escape quotes that are inside "content": "..." values
+                // and "description": "..." values
                 try {
-                    const fixedJson = jsonText.replace(/"content":\s*"([\s\S]*?)"(?=\s*[,}\]])/g, (match, content) => {
-                        // Escape unescaped quotes: replace " with \" unless it's already \"
+                    let fixedJson = jsonText.replace(/"content":\s*"([\s\S]*?)"(?=\s*[,}\]])/g, (match, content) => {
                         const escapedContent = content.replace(/\\"/g, '___ESCAPED_QUOTE___')
                             .replace(/"/g, '\\"')
                             .replace(/___ESCAPED_QUOTE___/g, '\\"');
                         return `"content": "${escapedContent}"`;
                     });
-                    scenes = JSON.parse(fixedJson);
+
+                    fixedJson = fixedJson.replace(/"description":\s*"([\s\S]*?)"(?=\s*[,}\]])/g, (match, content) => {
+                        const escapedContent = content.replace(/\\"/g, '___ESCAPED_QUOTE___')
+                            .replace(/"/g, '\\"')
+                            .replace(/___ESCAPED_QUOTE___/g, '\\"');
+                        return `"description": "${escapedContent}"`;
+                    });
+
+                    parsedData = JSON.parse(fixedJson);
                 } catch (secondError) {
                     console.error('Failed to parse AI response even after "medic" fix.');
                     console.error('Original Text:', text);
@@ -80,9 +88,23 @@ export async function generateScenes(script, apiKey) {
             throw new Error('Failed to process AI response. Please try again.');
         }
 
-        // Validate structure
+        // Handle both old array format (fallback) and new object format
+        let scenes = [];
+        let characters = [];
+
+        if (Array.isArray(parsedData)) {
+            // Fallback for old model behavior if it ignores instruction
+            scenes = parsedData;
+        } else if (parsedData && typeof parsedData === 'object') {
+            scenes = parsedData.scenes || [];
+            characters = parsedData.characters || [];
+        } else {
+            throw new Error('AI response format is invalid');
+        }
+
+        // Validate scenes
         if (!Array.isArray(scenes)) {
-            throw new Error('AI response must be an array of scenes');
+            throw new Error('Scenes must be an array');
         }
 
         if (scenes.length === 0) {
@@ -96,12 +118,17 @@ export async function generateScenes(script, apiKey) {
             }
         }
 
-        return scenes.map((scene, index) => ({
+        const formattedScenes = scenes.map((scene, index) => ({
             id: `scene-${Date.now()}-${index}`,
             content: scene.content.trim(),
             order: index,
             assets: []
         }));
+
+        return {
+            scenes: formattedScenes,
+            characters: characters
+        };
 
     } catch (error) {
         if (error.message && error.message.includes('API key')) {

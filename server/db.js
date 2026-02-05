@@ -149,6 +149,25 @@ function runMigrations(database) {
       `);
       console.log('Migration complete: project_state column added and backfilled');
     }
+
+    // Migration: Add characters table
+    const tables = database.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='characters'").get();
+    if (!tables) {
+      console.log('Running migration: Creating characters table...');
+      database.exec(`
+            CREATE TABLE IF NOT EXISTS characters (
+                id TEXT PRIMARY KEY,
+                project_id TEXT NOT NULL,
+                name TEXT NOT NULL,
+                description TEXT DEFAULT '',
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+            );
+            CREATE INDEX IF NOT EXISTS idx_characters_project_id ON characters(project_id);
+        `);
+      console.log('Migration complete: characters table created');
+    }
   } catch (err) {
     console.error('Migration error:', err);
   }
